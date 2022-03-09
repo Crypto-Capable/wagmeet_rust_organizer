@@ -10,16 +10,16 @@ use near_sdk::collections::LookupMap;
 use serde_json::Map;
 use serde_json::Value;
 use near_sdk::collections::UnorderedSet;
-mod modules;
+
 mod structs;
-mod enums;
+
 mod traits;
 
 use crate::structs::Event;
 
-pub use modules::*;
+
 pub use structs::*;
-pub use enums::*;
+
 pub use traits::*;
 
 near_sdk::setup_alloc!();
@@ -57,11 +57,38 @@ impl Contract {
         }
     }
    
-    pub fn add_host(&mut self, hostid: ValidAccountId, metadata: serde_json::Value) -> String{
-        let event = Event::create_event(hostid, metadata);
-        event.get_date()
-        // self.event_list.insert(&host_id,&event);
+    pub fn add_event(&mut self, hostid: AccountId, metadata: serde_json::Value) -> String{
+        
+        let mut host = self.host_list.get(&hostid).unwrap();
+        host.create_event(metadata);
+        host.get_name()
+        
     }
+
+    pub fn add_host(&mut self, hostid: AccountId, metadata: serde_json::Value){
+        
+        let host = Host::create_host(hostid.clone(), metadata);
+        self.host_list.insert(&hostid, &host);
+        
+    }
+
+    pub fn all_hosts(&self) -> Vec<(std::string::String, structs::Host)> {
+        self.host_list.to_vec()
+        // let v: Value = serde_json::from_str(data)?;
+    }
+
+    // #[result_serializer(borsh)]
+    // fn all_event(&self, hostid: AccountId) -> Vec<Event> {
+    //     let mut host = self.host_list.get(&hostid).unwrap();
+    //     host.get_events()
+    // }
+
+    fn delete_host(&mut self, hostid: AccountId) {
+        let host = self.host_list.get(&hostid).unwrap();
+        self.host_list.remove(&hostid);
+        drop(host);
+    }
+
 
 
 }

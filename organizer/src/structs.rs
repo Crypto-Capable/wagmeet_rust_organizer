@@ -12,6 +12,7 @@ use serde_json::Map;
 use serde_json::Value;
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime};
 use chrono::format::ParseError;
+use std::ptr::null;
 
 use crate::*;
 
@@ -31,26 +32,6 @@ pub struct Event {
 }
 
 impl Event {
-
-    // pub fn new() -> Self {
-    //     assert!(!env::state_exists(), "Already initialized");
-    //     Self {
-    //         // event_list: UnorderedMap::<AccountId, EventMetadata>::new(StorageKey::EventMetadata)
-    //         // bio: Some(String),
-    //         // email: Some(String),
-    //         eventid: String::new(),
-    //         name: String::new(),
-    //         location: String::new(),
-    //         date: String::new(),
-    //     }
-    // }
-    
-    pub fn create_event(hostid: ValidAccountId, metadata: serde_json::Value) -> Event{
-        // let date_only = NaiveDate::parse_from_str("2015-09-05", "%Y-%m-%d")?;
-        // https://rust-lang-nursery.github.io/rust-cookbook/datetime/parse.html#parse-string-into-datetime-struct
-        let _event_definations: Event = serde_json:: from_str(&metadata.to_string()).unwrap();
-        _event_definations
-    }
 
     pub fn get_name(&self) -> String {
         self.name.clone()
@@ -103,29 +84,31 @@ pub struct Host {
     accountid: AccountId,        // required, ex. "MOSIAC"
     bio: Option<String>,      // Data URL
     email: Option<String>, // Centralized gateway known to have reliable access to decentralized storage assets referenced by `reference` or `media` URLs
-    events: Option<Vec<Event>>,
+    // events: Vec<Event>,
+    events: Option<Event>,
 }
 
 impl Host {
 
-    // pub fn new() -> Self {
-    //     assert!(!env::state_exists(), "Already initialized");
-    //     Self {
-    //         weblinks: Some(Vec:: new()),
-    //         events: Some(Vec:: new()),
-    //         profile_image: Some(String),
-    //         bio: Some(String),
-    //         email: Some(String),
-    //         accountid: String::new(),
-    //         name: String::new(),
-    //     }
-    // }
-
-    pub fn create_host(host_id: AccountId, metadata: serde_json::Value) -> Host {
+    pub fn create_host(hostid: AccountId, metadata: serde_json::Value) -> Host {
         // let date_only = NaiveDate::parse_from_str("2015-09-05", "%Y-%m-%d")?;
         // https://rust-lang-nursery.github.io/rust-cookbook/datetime/parse.html#parse-string-into-datetime-struct
         let host_definations: Host = serde_json:: from_str(&metadata.to_string()).unwrap();
-        host_definations
+        let host = Host {
+            profile_image: None,
+            name: host_definations.name.to_string(),
+            weblinks: None,
+            accountid: hostid,
+            bio: None,
+            email: None,
+            events: None,
+        };
+        host
+    }
+
+    pub fn create_event(&mut self, metadata: serde_json::Value) {
+        let event_definations: Event = serde_json:: from_str(&metadata.to_string()).unwrap();
+        self.events = Some(event_definations);
     }
 
     pub fn get_name(&self) -> String {
@@ -141,16 +124,16 @@ impl Host {
     }
 
     pub fn get_accountid(&self) -> String {
-        self.accountid.clone()
+        self.accountid.to_string()
     }
 
     pub fn get_bio(&self) -> String {
         self.bio.as_ref().unwrap().to_string()
     }
 
-    pub fn get_events(&self) -> Vec<Event> {
-        self.events.as_ref().unwrap().to_vec()
-    }
+    // pub fn get_events(&self) -> Vec<Event> {
+    //     self.events.to_string()
+    // }
 
     pub fn get_email(&self) -> String {
         self.email.as_ref().unwrap().to_string()

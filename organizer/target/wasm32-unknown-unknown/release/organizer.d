@@ -1,0 +1,1 @@
+/mnt/e/College/Eighth\ Semester/wagmeet_rust_organizer/organizer/target/wasm32-unknown-unknown/release/organizer.wasm: /mnt/e/College/Eighth\ Semester/wagmeet_rust_organizer/organizer/src/lib.rs /mnt/e/College/Eighth\ Semester/wagmeet_rust_organizer/organizer/src/structs.rs /mnt/e/College/Eighth\ Semester/wagmeet_rust_organizer/organizer/src/traits.rs
