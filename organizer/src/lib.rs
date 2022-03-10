@@ -27,14 +27,14 @@ near_sdk::setup_alloc!();
 #[derive(BorshSerialize, BorshStorageKey)]
 enum StorageKey {
     Event,
-    Host,
+    // Host,
 }
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Contract {
     event_list: UnorderedMap<AccountId, UnorderedSet<Event>>,
-    host_list: UnorderedMap<AccountId, Host>,
+    host_list: UnorderedSet<AccountId>,
 }
 
 
@@ -53,29 +53,51 @@ impl Contract {
         assert!(!env::state_exists(), "Already initialized");
         Self {
             event_list: UnorderedMap::<AccountId, UnorderedSet<Event>>::new(StorageKey::Event),
-            host_list: UnorderedMap::<AccountId, Host>::new(StorageKey::Host),
+            host_list: UnorderedSet::new(b"s".to_vec()),
         }
     }
    
-    pub fn add_event(&mut self, hostid: AccountId, metadata: serde_json::Value) -> String{
+    pub fn add_event(&mut self, hostid: AccountId, metadata: serde_json::Value, date: String) -> String{
         
-        let mut host = self.host_list.get(&hostid).unwrap();
-        host.create_event(metadata);
-        host.get_name()
+        let mut event = Event::create_event(hostid.clone(),metadata);
+        event.set_date(date);
+        if !(self.host_list.contains(&hostid)) {
+            
+            self.host_list.insert(&hostid);
+            let _set: UnorderedSet<Event> = UnorderedSet::new(b"w".to_vec());
+            self.event_list.insert(&hostid, &_set);
+        }
+
+        let mut set_test = self.event_list.get(&hostid).unwrap();
+        set_test.insert(&event);
+        self.event_list.insert(&hostid, &set_test);
+
+        // self.event_list.get(&hostid).insert(&event);
         
+        event.get_name()
     }
 
-    pub fn add_host(&mut self, hostid: AccountId, metadata: serde_json::Value){
-        
-        let host = Host::create_host(hostid.clone(), metadata);
-        self.host_list.insert(&hostid, &host);
-        
+    pub fn all_events(&mut self, hostid: AccountId) -> Vec<structs::Event> {
+        self.event_list.get(&hostid).unwrap().to_vec()
     }
 
-    pub fn all_hosts(&self) -> Vec<(std::string::String, structs::Host)> {
-        self.host_list.to_vec()
-        // let v: Value = serde_json::from_str(data)?;
-    }
+    // pub fn delete_event(&mut self, hostid: AccountId) {
+    //     let mut event = self.event_list.get(&hostid).unwrap().to_vec();
+    //     self.event_list.get(&hostid).unwrap().remove(event[0]);
+    //     drop(event[0])
+    // }
+
+    // pub fn add_host(&mut self, hostid: AccountId, metadata: serde_json::Value){
+        
+    //     let host = Host::create_host(hostid.clone(), metadata);
+    //     self.host_list.insert(&hostid, &host);
+        
+    // }
+
+    // pub fn all_hosts(&self) -> Vec<(std::string::String, structs::Host)> {
+    //     self.host_list.to_vec()
+    //     // let v: Value = serde_json::from_str(data)?;
+    // }
 
     // #[result_serializer(borsh)]
     // fn all_event(&self, hostid: AccountId) -> Vec<Event> {
@@ -83,25 +105,25 @@ impl Contract {
     //     host.get_events()
     // }
 
-    fn delete_host(&mut self, hostid: AccountId) {
-        let host = self.host_list.get(&hostid).unwrap();
-        self.host_list.remove(&hostid);
-        drop(host);
-    }
-
-
-
-}
-
-
-#[near_bindgen]
-impl EventMetadataProvider for Contract {
-    
-    fn all_events(&self) -> Vec<(std::string::String, structs::Host)> {
-        self.host_list.to_vec()
-    }
-
-    // fn view_event(&self, account_id : AccountId) -> Vec<(std::string::String, UnorderedSet<structs::Event>)> {
-    //     self.event_list.get(&account_id).unwrap()
+    // fn delete_host(&mut self, hostid: AccountId) {
+    //     let host = self.host_list.get(&hostid).unwrap();
+    //     self.host_list.remove(&hostid);
+    //     drop(host);
     // }
+
+
+
 }
+
+
+// #[near_bindgen]
+// impl EventMetadataProvider for Contract {
+    
+//     // fn all_events(&self) -> Vec<(std::string::String, structs::Event)> {
+//     //     self.event_list.to_vec()
+//     // }
+
+//     // fn view_event(&self, account_id : AccountId) -> Vec<(std::string::String, UnorderedSet<structs::Event>)> {
+//     //     self.event_list.get(&account_id).unwrap()
+//     // }
+// }
