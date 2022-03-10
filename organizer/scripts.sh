@@ -1,0 +1,3 @@
+near call wagmeet101.meghaha.testnet add_event '{"hostid" : "wagmeet101.meghaha.testnet", "date" : "10-03-2020" , "metadata" : { "name" : "Breeze 2020" , "host" : "", "location" : "Delhi" } }' --accountId wagmeet101.meghaha.testnet
+near call wagmeet101.meghaha.testnet add_event '{"hostid" : "wagmeet101.meghaha.testnet", "date" : "10-03-2021" ,"metadata" : { "name" : "Breeze 2021" , "host" : "" , "location" : "Dadri" } }' --accountId wagmeet101.meghaha.testnet
+near call wagmeet101.meghaha.testnet all_events '{"hostid" : "wagmeet101.meghaha.testnet" }' --accountId wagmeet101.meghaha.testnet
