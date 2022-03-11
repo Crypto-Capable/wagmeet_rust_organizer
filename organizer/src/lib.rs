@@ -3,13 +3,15 @@ use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::collections::LazyOption;
 use near_sdk::json_types::ValidAccountId;
 use near_sdk::{
-    env, near_bindgen, AccountId, BorshStorageKey};
+    env, near_bindgen, AccountId, BorshStorageKey, Gas, Promise, Balance,
+    serde_json::{json}};
 use near_sdk::collections::UnorderedMap;
 use near_sdk::collections::Vector;
 use near_sdk::collections::LookupMap;
 use serde_json::Map;
 use serde_json::Value;
 use near_sdk::collections::UnorderedSet;
+
 
 mod structs;
 
@@ -21,6 +23,9 @@ use crate::structs::Event;
 pub use structs::*;
 
 pub use traits::*;
+
+const NO_DEPOSIT: Balance = 0;
+const GAS: Gas = 20_000_000_000_000;
 
 near_sdk::setup_alloc!();
 
@@ -79,6 +84,24 @@ impl Contract {
 
     pub fn all_events(&mut self, hostid: AccountId) -> Vec<structs::Event> {
         self.event_list.get(&hostid).unwrap().to_vec()
+    }
+
+    // pub fn check_balance_contract_b(&mut self, contract_a: AccountId, contract_b: AccountId, account_id: AccountId) -> Promise {
+    //     Promise::new(contract_b).function_call(
+    //         b"check_balance".to_vec(),
+    //         json!({ "contract_a": contract_a, "method_name": "check_balance_callback", "account_id": account_id }).to_string().as_bytes().to_vec(),
+    //         NO_DEPOSIT,
+    //         GAS,
+    //     )
+    // }
+
+    pub fn mint_nft(contract_a: AccountId, contract_b: AccountId) -> Promise {
+        Promise:: new(contract_b.clone()).function_call(
+            b"nft_metadata_call".to_vec(),
+            json!({ "account_id": contract_b }).to_string().as_bytes().to_vec(),
+            NO_DEPOSIT,
+            GAS,
+        )
     }
 
     // pub fn delete_event(&mut self, hostid: AccountId) {
