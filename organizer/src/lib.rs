@@ -1,27 +1,17 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::collections::LazyOption;
-use near_sdk::json_types::ValidAccountId;
 use near_sdk::{
     env, near_bindgen, AccountId, BorshStorageKey, Gas, Promise, Balance,
     serde_json::{json}};
 use near_sdk::collections::UnorderedMap;
-use near_sdk::collections::Vector;
 use near_sdk::collections::LookupMap;
-use serde_json::Map;
-use serde_json::Value;
 use near_sdk::collections::UnorderedSet;
 
-
 mod structs;
-
 mod traits;
 
 use crate::structs::Event;
-
-
 pub use structs::*;
-
 pub use traits::*;
 
 const NO_DEPOSIT: Balance = 0;
@@ -82,9 +72,30 @@ impl Contract {
         event.get_name()
     }
 
-    pub fn all_events(&mut self, hostid: AccountId) -> Vec<structs::Event> {
+    pub fn all_events_by_id(&mut self, hostid: AccountId) -> Vec<structs::Event> {
         self.event_list.get(&hostid).unwrap().to_vec()
     }
+
+    pub fn all_events(&self) -> Vec<Event>{
+        let _values = self.event_list.keys_as_vector();
+        let v1_iter = _values.iter();
+        let mut ans = Vec:: new();
+        for i in v1_iter {
+            let mut vec2 = self.event_list.get(&i).unwrap().to_vec();
+            ans.append(&mut vec2);
+        }
+        ans
+    }
+
+    // pub fn all_events(&mut self) -> Vec<&UnorderedSet<Event>> {
+    //     let _values = self.event_list.values_as_vector().to_vec();
+    //     let v1_iter = _values.iter();
+    //     let mut ans = Vec:: new();
+    //     for i in v1_iter {
+    //         ans.push(i);
+    //     }
+    //     ans
+    // }
 
     // pub fn check_balance_contract_b(&mut self, contract_a: AccountId, contract_b: AccountId, account_id: AccountId) -> Promise {
     //     Promise::new(contract_b).function_call(
