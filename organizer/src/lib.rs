@@ -15,7 +15,7 @@ pub use structs::*;
 pub use traits::*;
 
 const NO_DEPOSIT: Balance = 0;
-const GAS: Gas = 20_000_000_000_000;
+const GAS: Gas = 40_000_000_000_000;
 
 near_sdk::setup_alloc!();
 
@@ -87,16 +87,6 @@ impl Contract {
         ans
     }
 
-    // pub fn all_events(&mut self) -> Vec<&UnorderedSet<Event>> {
-    //     let _values = self.event_list.values_as_vector().to_vec();
-    //     let v1_iter = _values.iter();
-    //     let mut ans = Vec:: new();
-    //     for i in v1_iter {
-    //         ans.push(i);
-    //     }
-    //     ans
-    // }
-
     // pub fn check_balance_contract_b(&mut self, contract_a: AccountId, contract_b: AccountId, account_id: AccountId) -> Promise {
     //     Promise::new(contract_b).function_call(
     //         b"check_balance".to_vec(),
@@ -106,10 +96,19 @@ impl Contract {
     //     )
     // }
 
-    pub fn mint_nft(contract_a: AccountId, contract_b: AccountId) -> Promise {
+    pub fn conttact_initialize(contract_a: AccountId, contract_b: AccountId) -> Promise {
         Promise:: new(contract_b.clone()).function_call(
             b"nft_metadata_call".to_vec(),
             json!({ "account_id": contract_b }).to_string().as_bytes().to_vec(),
+            NO_DEPOSIT,
+            GAS,
+        )
+    }
+
+    pub fn nft_mint(contract_a: AccountId, contract_b: AccountId) -> Promise {
+        Promise:: new(contract_b.clone()).function_call(
+            b"nft_mint".to_vec(),
+            json!({ "token_id": "nft_token101","metadata" : { "title" : "First NFT" , "description" : "This is the first minted NFT" }, "receiver_id" : contract_a}).to_string().as_bytes().to_vec(),
             NO_DEPOSIT,
             GAS,
         )

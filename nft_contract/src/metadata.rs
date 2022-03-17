@@ -10,6 +10,7 @@ const GAS: Gas = 10_000_000_000_000;
 const NO_DEPOSIT: Balance = 0;
 
 pub type TokenId = String;
+
 //defines the payout type we'll be returning as a part of the royalty standards.
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "near_sdk::serde")]
