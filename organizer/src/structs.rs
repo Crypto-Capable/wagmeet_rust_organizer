@@ -27,7 +27,8 @@ pub struct Event {
     date: Option<i64>,  
     host: AccountId,        // required, ex. "MOSIAC"
     bio: Option<String>,      // Data URL
-    email: Option<String>, // Centralized gateway known to have reliable access to decentralized storage assets referenced by `reference` or `media` URLs
+    email: Option<String>,
+    no_tickets: i64,
 }
 
 impl Event {
@@ -35,15 +36,15 @@ impl Event {
     pub fn create_event(hostid: AccountId, metadata: serde_json::Value) -> Event {
         let event_definations: Event = serde_json:: from_str(&metadata.to_string()).unwrap();
         // let date_format = NaiveDate::parse_from_str(&event_definations.date.to_string(), "%d-%m-%Y").unwrap();
-        let event = Event {
+        Event {
             name: event_definations.name.to_string(),
             location: event_definations.location.to_string(),
             date: None,
             host: hostid,
             bio: None,
             email: None,
-        };
-        event 
+            no_tickets: event_definations.no_tickets,
+        }
     }
 
     pub fn get_name(&self) -> String {
@@ -70,6 +71,10 @@ impl Event {
         self.email.as_ref().unwrap().to_string()
     }
 
+    pub fn get_no_tickets(&mut self) -> i64 {
+        self.no_tickets.clone()
+    }
+
     pub fn set_date(&mut self, date : String) {
         let d = NaiveDate::parse_from_str(&date.to_string(), "%d-%m-%Y").unwrap();
         let t = NaiveTime::parse_from_str("00:00:00", "%H:%M:%S").unwrap();
@@ -78,13 +83,18 @@ impl Event {
         self.date = Some(dt.timestamp());
 
     }
-
+    // 2428113290324
+    // 30000000000000
     pub fn set_bio(&mut self, bio: String) {
         self.bio = Some(bio);
     }
 
     pub fn set_email(&mut self, email: String) {
         self.email = Some(email);
+    }
+
+    pub fn set_no_tickets(&mut self, number : i64) {
+        self.no_tickets = number;
     }
      
 }

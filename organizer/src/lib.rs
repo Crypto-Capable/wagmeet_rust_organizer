@@ -14,8 +14,11 @@ use crate::structs::Event;
 pub use structs::*;
 pub use traits::*;
 
-const NO_DEPOSIT: Balance = 0;
-const GAS: Gas = 40_000_000_000_000;
+const NO_DEPOSIT: Balance = 3;
+const GAS: Gas = 500_000_000_000_000;
+pub const XCC_GAS: Gas = 20000000000000;
+const INITIAL_BALANCE: Balance = 250_000_000_000_000_000_000_000; // 2.5e23yN, 0.25N
+
 
 near_sdk::setup_alloc!();
 
@@ -52,7 +55,7 @@ impl Contract {
         }
     }
    
-    pub fn add_event(&mut self, hostid: AccountId, metadata: serde_json::Value, date: String) -> String{
+    pub fn add_event(&mut self, hostid: AccountId, metadata: serde_json::Value, date: String)-> Promise{
         
         let mut event = Event::create_event(hostid.clone(),metadata);
         event.set_date(date);
@@ -66,11 +69,28 @@ impl Contract {
         let mut set_test = self.event_list.get(&hostid).unwrap();
         set_test.insert(&event);
         self.event_list.insert(&hostid, &set_test);
+        let subaccount_name = format!("{}.{}", event.get_name(), hostid.clone());
+        // let subaccount_name = "wagmeet102.wagmeet101.meghaha101.testnet";
+        Promise::new(subaccount_name.to_string())
+            .create_account()
+            .add_full_access_key(env::signer_account_pk())
+            .transfer(INITIAL_BALANCE)
 
         // self.event_list.get(&hostid).insert(&event);
         
-        event.get_name()
+        // event.get_name()
     }
+
+    // #[private]
+    // pub fn create_subaccount(subaccount: String) -> Promise {
+    //     // let subaccount_id = AccountId::new_unchecked(
+    //     //   format!("{}.{}", prefix, env::current_account_id())
+    //     // );
+    //     Promise::new(subaccount_name.to_string())
+    //         .create_account()
+    //         .add_full_access_key(env::signer_account_pk())
+    //         .transfer(INITIAL_BALANCE)
+    // }
 
     pub fn all_events_by_id(&mut self, hostid: AccountId) -> Vec<structs::Event> {
         self.event_list.get(&hostid).unwrap().to_vec()
@@ -96,18 +116,22 @@ impl Contract {
     //     )
     // }
 
-    pub fn conttact_initialize(contract_a: AccountId, contract_b: AccountId) -> Promise {
+    pub fn contract_initialize(contract_a: AccountId, contract_b: AccountId) -> Promise {
+        // let fun_name = "nft_metadata_call".to_string();
+        let fn_name = b"nft_metadata_call".to_vec();
         Promise:: new(contract_b.clone()).function_call(
-            b"nft_metadata_call".to_vec(),
+            fn_name,
             json!({ "account_id": contract_b }).to_string().as_bytes().to_vec(),
             NO_DEPOSIT,
-            GAS,
+            XCC_GAS,
         )
     }
 
     pub fn nft_mint(contract_a: AccountId, contract_b: AccountId) -> Promise {
+        // let fun_name = "nft_mint".to_string();
+        let fn_name = b"nft_mint".to_vec();
         Promise:: new(contract_b.clone()).function_call(
-            b"nft_mint".to_vec(),
+            fn_name,
             json!({ "token_id": "nft_token101","metadata" : { "title" : "First NFT" , "description" : "This is the first minted NFT" }, "receiver_id" : contract_a}).to_string().as_bytes().to_vec(),
             NO_DEPOSIT,
             GAS,
