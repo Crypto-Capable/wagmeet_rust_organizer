@@ -69,8 +69,8 @@ impl Contract {
         let mut set_test = self.event_list.get(&hostid).unwrap();
         set_test.insert(&event);
         self.event_list.insert(&hostid, &set_test);
-        let subaccount_name = format!("{}.{}", event.get_name(), hostid.clone());
-        // let subaccount_name = "wagmeet102.wagmeet101.meghaha101.testnet";
+        // let subaccount_name = format!("{}.{}", event.get_name(), hostid.clone());
+        let subaccount_name = "wagmeet102.wagmeet101.meghaha101.testnet";
         Promise::new(subaccount_name.to_string())
             .create_account()
             .add_full_access_key(env::signer_account_pk())
