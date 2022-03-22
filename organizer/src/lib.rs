@@ -81,17 +81,6 @@ impl Contract {
         // event.get_name()
     }
 
-    // #[private]
-    // pub fn create_subaccount(subaccount: String) -> Promise {
-    //     // let subaccount_id = AccountId::new_unchecked(
-    //     //   format!("{}.{}", prefix, env::current_account_id())
-    //     // );
-    //     Promise::new(subaccount_name.to_string())
-    //         .create_account()
-    //         .add_full_access_key(env::signer_account_pk())
-    //         .transfer(INITIAL_BALANCE)
-    // }
-
     pub fn all_events_by_id(&mut self, hostid: AccountId) -> Vec<structs::Event> {
         self.event_list.get(&hostid).unwrap().to_vec()
     }
