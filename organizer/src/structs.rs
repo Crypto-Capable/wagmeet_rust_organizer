@@ -1,21 +1,7 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::json_types::Base64VecU8;
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::collections::LazyOption;
-use near_sdk::json_types::ValidAccountId;
-use near_sdk::{
-    env, near_bindgen, AccountId, BorshStorageKey};
-use near_sdk::collections::UnorderedMap;
-use near_sdk::collections::Vector;
-use near_sdk::collections::LookupMap;
-use serde_json::Map;
-use serde_json::Value;
-use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime};
-use chrono::format::ParseError;
-use std::ptr::null;
-
-use crate::*;
-
+use near_sdk::{AccountId};
+use chrono::{ NaiveDate, NaiveDateTime, NaiveTime};
 
 
 /// Metadata for the NFT contract itself.
@@ -28,7 +14,11 @@ pub struct Event {
     host: AccountId,        // required, ex. "MOSIAC"
     bio: Option<String>,      // Data URL
     email: Option<String>,
-    no_tickets: i64,
+    total_tickets: i64,
+    total_tickets_sold: i64,
+    ticket_price: i64,
+    is_mint_enabled: bool, 
+
 }
 
 impl Event {
@@ -43,7 +33,10 @@ impl Event {
             host: hostid,
             bio: None,
             email: None,
-            no_tickets: event_definations.no_tickets,
+            total_tickets: event_definations.total_tickets,
+            total_tickets_sold: 0,
+            ticket_price: event_definations.ticket_price,
+            is_mint_enabled: false,
         }
     }
 
@@ -71,8 +64,8 @@ impl Event {
         self.email.as_ref().unwrap().to_string()
     }
 
-    pub fn get_no_tickets(&mut self) -> i64 {
-        self.no_tickets.clone()
+    pub fn get_total_tickets(&mut self) -> i64 {
+        self.total_tickets.clone()
     }
 
     pub fn set_date(&mut self, date : String) {
@@ -83,8 +76,7 @@ impl Event {
         self.date = Some(dt.timestamp());
 
     }
-    // 2428113290324
-    // 30000000000000
+   
     pub fn set_bio(&mut self, bio: String) {
         self.bio = Some(bio);
     }
@@ -93,8 +85,8 @@ impl Event {
         self.email = Some(email);
     }
 
-    pub fn set_no_tickets(&mut self, number : i64) {
-        self.no_tickets = number;
+    pub fn set_total_tickets(&mut self, number : i64) {
+        self.total_tickets = number;
     }
      
 }
@@ -106,81 +98,43 @@ impl Drop for Event {
     // drop(obj);
 }
 
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(crate = "near_sdk::serde")]
+pub struct TicketMetadata  {
+    title: String,              // required, ex. "Mosaics"
+    description: String,  
+    organizer_id: AccountId,  
+    event_id: String,
+    created_at: Option<i64>,
+    sold_at: Option<i64>,
+    is_attendence_marked: bool,
+}
 
-// #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, Debug, PartialEq)]
-// #[serde(crate = "near_sdk::serde")]
-// pub struct Host {
-//     profile_image : Option<String>,              // required, ex. "Mosaics"
-//     name: String,  
-//     weblinks: Option<Vec<String>>,  
-//     accountid: AccountId,        // required, ex. "MOSIAC"
-//     bio: Option<String>,      // Data URL
-//     email: Option<String>, // Centralized gateway known to have reliable access to decentralized storage assets referenced by `reference` or `media` URLs
-//     // events: Vec<Event>,
-//     events: Option<Event>,
-// }
 
-// impl Host {
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(crate = "near_sdk::serde")]
+pub struct Ticket  {
+    token_id: String,              // required, ex. "Mosaics"
+    owner_id: AccountId,  
+    metadata: TicketMetadata,  
+}
 
-//     pub fn create_host(hostid: AccountId, metadata: serde_json::Value) -> Host {
-//         // let date_only = NaiveDate::parse_from_str("2015-09-05", "%Y-%m-%d")?;
-//         // https://rust-lang-nursery.github.io/rust-cookbook/datetime/parse.html#parse-string-into-datetime-struct
-//         let host_definations: Host = serde_json:: from_str(&metadata.to_string()).unwrap();
-//         let host = Host {
-//             profile_image: None,
-//             name: host_definations.name.to_string(),
-//             weblinks: None,
-//             accountid: hostid,
-//             bio: None,
-//             email: None,
-//             events: None,
-//         };
-//         host
-//     }
+impl Ticket {
 
-    
-
-//     pub fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-
-//     pub fn get_profile_image(&self) -> String {
-//         self.profile_image.as_ref().unwrap().to_string()
-//     }
-
-//     pub fn get_weblinks(&self) -> Vec<String> {
-//         self.weblinks.as_ref().unwrap().to_vec()
-//     }
-
-//     pub fn get_accountid(&self) -> String {
-//         self.accountid.to_string()
-//     }
-
-//     pub fn get_bio(&self) -> String {
-//         self.bio.as_ref().unwrap().to_string()
-//     }
-
-//     // pub fn get_events(&self) -> Vec<Event> {
-//     //     self.events.to_string()
-//     // }
-
-//     pub fn get_email(&self) -> String {
-//         self.email.as_ref().unwrap().to_string()
-//     }
-
-//     pub fn set_bio(&mut self, bio: String) {
-//         self.bio = Some(bio);
-//     }
-
-//     pub fn set_email(&mut self, email: String) {
-//         self.email = Some(email);
-//     }
-     
-// }
-
-// impl Drop for Host {
-//     fn drop(&mut self) {
-//         println!("Deleting the host!");
-//     }
-//     // drop(obj);
-// }
+    pub fn new(hostid: AccountId, metadata: serde_json::Value) -> Event {
+        let event_definations: Event = serde_json:: from_str(&metadata.to_string()).unwrap();
+        // let date_format = NaiveDate::parse_from_str(&event_definations.date.to_string(), "%d-%m-%Y").unwrap();
+        Event {
+            name: event_definations.name.to_string(),
+            location: event_definations.location.to_string(),
+            date: None,
+            host: hostid,
+            bio: None,
+            email: None,
+            total_tickets: event_definations.total_tickets,
+            total_tickets_sold: 0,
+            ticket_price: event_definations.ticket_price,
+            is_mint_enabled: false,
+        }
+    }
+}

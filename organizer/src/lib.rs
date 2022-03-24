@@ -1,10 +1,8 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
     env, near_bindgen, AccountId, BorshStorageKey, Gas, Promise, Balance,
     serde_json::{json}};
 use near_sdk::collections::UnorderedMap;
-use near_sdk::collections::LookupMap;
 use near_sdk::collections::UnorderedSet;
 
 mod structs;
@@ -25,6 +23,8 @@ near_sdk::setup_alloc!();
 #[derive(BorshSerialize, BorshStorageKey)]
 enum StorageKey {
     Event,
+    Ticket, 
+    TicketMetadata,
     // Host,
 }
 
@@ -116,6 +116,7 @@ impl Contract {
         )
     }
 
+    #[payable]
     pub fn nft_mint(contract_a: AccountId, contract_b: AccountId) -> Promise {
         // let fun_name = "nft_mint".to_string();
         let fn_name = b"nft_mint".to_vec();
