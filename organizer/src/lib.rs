@@ -62,38 +62,30 @@ impl Contract {
         metadata: serde_json::Value,
         date: String,
     ) -> String {
-        let mut event = Event::create_event(hostid.clone(), metadata);
+        let id = env::predecessor_account_id();
+        let mut event = Event::create_event(id.clone(), metadata);
         event.set_date(date);
-        if !(self.host_list.contains(&hostid)) {
-            self.host_list.insert(&hostid);
+        if !(self.host_list.contains(&id)) {
+            self.host_list.insert(&id);
             let _set: UnorderedSet<Event> = UnorderedSet::new(b"w".to_vec());
-            self.event_list.insert(&hostid, &_set);
+            self.event_list.insert(&id, &_set);
         }
-
-        let mut set_test = self.event_list.get(&hostid).unwrap();
+        let mut set_test = self.event_list.get(&id).unwrap();
         set_test.insert(&event);
-        self.event_list.insert(&hostid, &set_test);
+        self.event_list.insert(&id, &set_test);
         // let subaccount_name = format!("{}.{}", event.get_name(), hostid.clone());
-        let subaccount_name = "event8.wagmeetowner.test-nea.testnet";        
+        let subaccount_name = "event_5.wagmeetowner.test-nea.testnet";
         Promise::new(subaccount_name.to_string())
             .create_account()
             .add_full_access_key(env::signer_account_pk())
             .transfer(INITIAL_BALANCE)
             .deploy_contract(CODE.to_vec());
-        // self.event_list.get(&hostid).insert(&event);
         subaccount_name.to_string()
     }
 
-    // #[private]
-    // pub fn create_subaccount(subaccount: String) -> Promise {
-    //     // let subaccount_id = AccountId::new_unchecked(
-    //     //   format!("{}.{}", prefix, env::current_account_id())
-    //     // );
-    //     Promise::new(subaccount_name.to_string())
-    //         .create_account()
-    //         .add_full_access_key(env::signer_account_pk())
-    //         .transfer(INITIAL_BALANCE)
-    // }
+    pub fn delete_event_account(&mut self, account: AccountId) -> Promise {
+        Promise::new(account.to_string()).delete_account(env::predecessor_account_id())
+    }
 
     pub fn all_events_by_id(&mut self, hostid: AccountId) -> Vec<structs::Event> {
         self.event_list.get(&hostid).unwrap().to_vec()
@@ -111,7 +103,6 @@ impl Contract {
     }
 
     pub fn contract_initialize(contract_a: AccountId, contract_b: AccountId) -> Promise {
-        // let fun_name = "nft_metadata_call".to_string();
         let fn_name = b"new_default_meta".to_vec();
         Promise::new(contract_b.clone()).function_call(
             fn_name,
@@ -126,7 +117,6 @@ impl Contract {
 
     #[payable]
     pub fn nft_mint(contract_a: AccountId, contract_b: AccountId) -> Promise {
-        // let fun_name = "nft_mint".to_string();
         let fn_name = b"nft_mint".to_vec();
         Promise:: new(contract_b.clone()).function_call(
             fn_name,

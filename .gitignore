@@ -1,3 +1,4 @@
 nft_contract/target
 organizer/target
 organizer/mytests.sh
+organizer/clear_account.sh

@@ -13,6 +13,7 @@ use serde_json::Value;
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime};
 use chrono::format::ParseError;
 use std::ptr::null;
+use std::fmt::Debug;
 
 use crate::*;
 
@@ -105,6 +106,7 @@ impl Drop for Event {
     }
     // drop(obj);
 }
+
 
 
 // #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, Debug, PartialEq)]
