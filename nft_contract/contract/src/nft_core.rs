@@ -1,8 +1,8 @@
 use crate::*;
 use near_sdk::{ext_contract, log, Gas, PromiseResult};
 
-const GAS_FOR_RESOLVE_TRANSFER: Gas = 10_000_000_000_000;
-const GAS_FOR_NFT_TRANSFER_CALL: Gas = 35_000_000_000_000;
+const GAS_FOR_RESOLVE_TRANSFER: Gas = Gas(10_000_000_000_000);
+const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(25_000_000_000_000 + GAS_FOR_RESOLVE_TRANSFER.0);
 const NO_DEPOSIT: Balance = 0;
 
 pub trait NonFungibleTokenCore {
