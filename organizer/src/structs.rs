@@ -23,28 +23,50 @@ use crate::*;
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Event {
-    name: String,              // required, ex. "Mosaics"
-    location: String,  
-    date: Option<i64>,  
-    host: AccountId,        // required, ex. "MOSIAC"
-    bio: Option<String>,      // Data URL
-    email: Option<String>,
-    no_tickets: i64,
+    pub name: String,
+    pub description : String,
+    pub symbol : String,              // required, ex. "Mosaics"              // required, ex. "Mosaics"
+    pub location: String,  
+    // date: Option<i64>,  
+    pub host: AccountId, 
+    event_address : Option<AccountId>       // required, ex. "MOSIAC"
+    // bio: Option<String>,      // Data URL
+    // email: Option<String>,
+    // no_tickets: i64,
+}
+pub struct TokenMetadata {
+    pub title: Option<String>, // ex. "Arch Nemesis: Mail Carrier" or "Parcel #5055"
+    pub description: Option<String>, // free-form description
+    pub media: Option<String>, // URL to associated media, preferably to decentralized, content-addressed storage
+    pub media_hash: Option<Base64VecU8>, // Base64-encoded sha256 hash of content referenced by the `media` field. Required if `media` is included.
+    pub copies: Option<u64>, // number of copies of this set of metadata in existence when token was minted.
+    pub issued_at: Option<u64>, // When token was issued or minted, Unix epoch in milliseconds
+    pub expires_at: Option<u64>, // When token expires, Unix epoch in milliseconds
+    pub starts_at: Option<u64>, // When token starts being valid, Unix epoch in milliseconds
+    pub updated_at: Option<u64>, // When token was last updated, Unix epoch in milliseconds
+    pub extra: Option<String>, // anything extra the NFT wants to store on-chain. Can be stringified JSON.
+    pub reference: Option<String>, // URL to an off-chain JSON file with more info.
+    pub reference_hash: Option<Base64VecU8>, // Base64-encoded sha256 hash of JSON from reference field. Required if `reference` is included.
+    // pub is_attended: Option<bool>, -> V2
 }
 
 impl Event {
 
-    pub fn create_event(hostid: AccountId, metadata: serde_json::Value) -> Event {
+    pub fn create_event(hostid: AccountId, metadata: &serde_json::Value) -> Event {
+        log!("IDF: {}", hostid);
         let event_definations: Event = serde_json:: from_str(&metadata.to_string()).unwrap();
         // let date_format = NaiveDate::parse_from_str(&event_definations.date.to_string(), "%d-%m-%Y").unwrap();
         Event {
             name: event_definations.name.to_string(),
             location: event_definations.location.to_string(),
-            date: None,
+            description: event_definations.description.to_string(),
+            symbol: event_definations.symbol.to_string(),
+            // date: None,
             host: hostid,
-            bio: None,
-            email: None,
-            no_tickets: event_definations.no_tickets,
+            event_address : None
+            // bio: None,
+            // email: None,
+            // no_tickets: event_definations.no_tickets,
         }
     }
 
@@ -56,47 +78,52 @@ impl Event {
         self.location.clone()
     }
 
-    pub fn get_date(&self) -> std::option::Option<i64> {
-        self.date.clone()
-    }
-
     pub fn get_host(&self) -> String {
         self.host.to_string()
     }
 
-    pub fn get_bio(&self) -> String {
-        self.bio.as_ref().unwrap().to_string()
+    pub fn set_event_address(&mut self, address : AccountId) {
+        log!("EVENT ADDRESS : {}", address);
+        self.event_address = Some(address)
     }
 
-    pub fn get_email(&self) -> String {
-        self.email.as_ref().unwrap().to_string()
-    }
+    // pub fn get_date(&self) -> std::option::Option<i64> {
+    //     self.date.clone()
+    // }
 
-    pub fn get_no_tickets(&mut self) -> i64 {
-        self.no_tickets.clone()
-    }
+    // pub fn get_bio(&self) -> String {
+    //     self.bio.as_ref().unwrap().to_string()
+    // }
 
-    pub fn set_date(&mut self, date : String) {
-        let d = NaiveDate::parse_from_str(&date.to_string(), "%d-%m-%Y").unwrap();
-        let t = NaiveTime::parse_from_str("00:00:00", "%H:%M:%S").unwrap();
-        let dt = NaiveDateTime::new(d, t);
+    // pub fn get_email(&self) -> String {
+    //     self.email.as_ref().unwrap().to_string()
+    // }
 
-        self.date = Some(dt.timestamp());
+    // pub fn get_no_tickets(&mut self) -> i64 {
+    //     self.no_tickets.clone()
+    // }
 
-    }
-    // 2428113290324
-    // 30000000000000
-    pub fn set_bio(&mut self, bio: String) {
-        self.bio = Some(bio);
-    }
+    // pub fn set_date(&mut self, date : String) {
+    //     let d = NaiveDate::parse_from_str(&date.to_string(), "%d-%m-%Y").unwrap();
+    //     let t = NaiveTime::parse_from_str("00:00:00", "%H:%M:%S").unwrap();
+    //     let dt = NaiveDateTime::new(d, t);
 
-    pub fn set_email(&mut self, email: String) {
-        self.email = Some(email);
-    }
+    //     self.date = Some(dt.timestamp());
 
-    pub fn set_no_tickets(&mut self, number : i64) {
-        self.no_tickets = number;
-    }
+    // }
+    // // 2428113290324
+    // // 30000000000000
+    // pub fn set_bio(&mut self, bio: String) {
+    //     self.bio = Some(bio);
+    // }
+
+    // pub fn set_email(&mut self, email: String) {
+    //     self.email = Some(email);
+    // }
+
+    // pub fn set_no_tickets(&mut self, number : i64) {
+    //     self.no_tickets = number;
+    // }
      
 }
 
@@ -106,6 +133,7 @@ impl Drop for Event {
     }
     // drop(obj);
 }
+
 
 
 

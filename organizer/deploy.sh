@@ -1,7 +1,9 @@
 ./build.sh
-near delete wagmeet101.meghaha101.testnet meghaha101.testnet
-near create-account wagmeet101.meghaha101.testnet --masterAccount meghaha101.testnet --initialBalance 50
-near deploy --wasmFile target/wasm32-unknown-unknown/release/organizer.wasm --accountId wagmeet101.meghaha101.testnet --initFunction 'new' --initArgs '{}'
+near delete wagmeet-owner.$NEAR_ID $NEAR_ID
+
+near create-account wagmeet-owner.$NEAR_ID --masterAccount $NEAR_ID --initialBalance 100
+near deploy --wasmFile target/wasm32-unknown-unknown/release/organizer.wasm --accountId $WAGMEET_CONTRACT --initFunction 'new' --initArgs '{}'
+near deploy --wasmFile target/wasm32-unknown-unknown/release/organizer.wasm --accountId $WAGMEET_CONTRACT
 # near call wagmeet101.meghaha.testnet add_user '{"owner_id" : "wagmeet101.meghaha.testnet", "metadata" : "{\"name\" : \"Megha Agarwal\" , \"unique_handle\" : \"meghaha\", \"birthday\" : \"22-02-2022\", \"gender\" : \"Female\" , \"wallet_address\" : \"wagmeet101.meghaha.testnet\" }" }' --accountId wagmeet101.meghaha.testnet
 near call wagmeet101.meghaha101.testnet add_event '{"hostid" : "wagmeet101.meghaha101.testnet", "date" : "10-03-2020" , "metadata" : { "name" : "Breeze_2020" , "host" : "", "location" : "Delhi", "no_tickets" : 200  } }' --accountId wagmeet101.meghaha101.testnet
 # near call wagmeet101.meghaha.testnet add_event '{"hostid" : "meghaha101.testnet", "date" : "25-03-2022" ,"metadata" : { "name" : "Breeze 2022" , "host" : "" , "location" : "Dadri" , "no_tickets" : 100 } }' --accountId wagmeet101.meghaha101.testnet --gas=300000000000000
