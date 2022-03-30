@@ -6,9 +6,6 @@ near call dakjh.wagmeet-owner.test-nea2.testnet nft_mint '{"token_id": "3", "rec
 
 near call wagmeet-owner.$NEAR_ID all_events  --accountId $NEAR_ID
 
-
-
-
 near view hacki.wagmeet-owner.test-nea2.testnet nft_metadata
 near view dakjh.wagmeet-owner.test-nea2.testnet nft_tokens
 near view hacki.wagmeet-owner.test-nea2.testnet nft_total_supply

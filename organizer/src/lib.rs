@@ -7,8 +7,9 @@ use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
     env, near_bindgen, serde_json::json, AccountId, Balance, BorshStorageKey, Gas, Promise,
 };
-const CODE: &[u8] =
-    include_bytes!("../../nft_contract/contract/target/wasm32-unknown-unknown/release/nft_simple.wasm");
+const CODE: &[u8] = include_bytes!(
+    "../../nft_contract/contract/target/wasm32-unknown-unknown/release/nft_simple.wasm"
+);
 
 mod structs;
 mod traits;
@@ -59,13 +60,19 @@ impl Contract {
     pub fn add_event(
         &mut self,
         metadata: serde_json::Value,
-        // date: String,
     ) -> Promise {
+        #[allow(unused_doc_comments)]
+        /**
+         * STEPS :
+         * -> adds an event to 'event_list'
+         * -> adds host to 'host_list'
+         * -> creates a sub account for the event, transfer initial balance to cover storage costs,
+         *    deploy contract on created sub account, initialize contract.
+         */
+        // get contract account
         let id = env::current_account_id();
         let mut event = Event::create_event(env::predecessor_account_id(), &metadata);
-        let event_definations: Event = serde_json:: from_str(&metadata.to_string()).unwrap();
-
-
+        let event_definations: Event = serde_json::from_str(&metadata.to_string()).unwrap();
 
         // event.set_date(date);
         if !(self.host_list.contains(&id)) {
@@ -77,16 +84,17 @@ impl Contract {
         set_test.insert(&event);
         self.event_list.insert(&id, &set_test);
 
-
-
+        // create a sub account name using event name and contract ID.
         let event_name = String::from(event.get_name());
         let subaccount_name = format!("{}.{}", &event_name[0..5], id.clone());
         let event_account = &subaccount_name.to_lowercase().trim().to_string();
 
+        // function name to be called to initialize NFT-EVENT-Contract
         let fn_name = b"new_default_meta".to_vec();
-        event.set_event_address(event_account.to_string());
 
-        log!("account name : {}", subaccount_name.to_lowercase().trim());
+        // FIXME: Check below functionality - fix it
+        // event.set_event_address(event_account.to_string());
+
         Promise::new(event_account.to_string())
             .create_account()
             .add_full_access_key(env::signer_account_pk())
@@ -121,7 +129,4 @@ impl Contract {
         }
         ans
     }
-
-
-    
 }
