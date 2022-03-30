@@ -25,12 +25,12 @@ use crate::*;
 pub struct Event {
     pub name: String,
     pub description : String,
-    pub symbol : String,              // required, ex. "Mosaics"              // required, ex. "Mosaics"
+    pub symbol : String,  
     pub location: String,  
     // date: Option<i64>,  
     pub host: AccountId, 
-    event_address : Option<AccountId>       // required, ex. "MOSIAC"
-    // bio: Option<String>,      // Data URL
+    pub event_address : Option<String> 
+    // bio: Option<String>, 
     // email: Option<String>,
     // no_tickets: i64,
 }
@@ -53,8 +53,12 @@ pub struct TokenMetadata {
 impl Event {
 
     pub fn create_event(hostid: AccountId, metadata: &serde_json::Value) -> Event {
-        log!("IDF: {}", hostid);
+        let id = env::current_account_id();
         let event_definations: Event = serde_json:: from_str(&metadata.to_string()).unwrap();
+
+        let event_name = String::from(event_definations.name.to_string());
+        let subaccount_name = format!("{}.{}", &event_name[0..5], id.clone());
+        let event_account = &subaccount_name.to_lowercase().trim().to_string();
         // let date_format = NaiveDate::parse_from_str(&event_definations.date.to_string(), "%d-%m-%Y").unwrap();
         Event {
             name: event_definations.name.to_string(),
@@ -63,7 +67,7 @@ impl Event {
             symbol: event_definations.symbol.to_string(),
             // date: None,
             host: hostid,
-            event_address : None
+            event_address : Some(event_account.to_string()),
             // bio: None,
             // email: None,
             // no_tickets: event_definations.no_tickets,
@@ -82,9 +86,9 @@ impl Event {
         self.host.to_string()
     }
 
-    pub fn set_event_address(&mut self, address : AccountId) {
+    pub fn set_event_address(&mut self, address : String) {
         log!("EVENT ADDRESS : {}", address);
-        self.event_address = Some(address)
+        self.event_address = Some(address);
     }
 
     // pub fn get_date(&self) -> std::option::Option<i64> {

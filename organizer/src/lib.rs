@@ -21,7 +21,7 @@ const NO_DEPOSIT: Balance = 0;
 const MINT_PRICE: Balance = 0;
 const GAS: Gas = 100_000_000_000_000;
 pub const XCC_GAS: Gas = 20000000000000;
-const INITIAL_BALANCE: Balance = 50_000_000_000_000_000_000_000_000; //
+const INITIAL_BALANCE: Balance = 2_500_000_000_000_000_000_000_000; //
 
 near_sdk::setup_alloc!();
 
@@ -61,8 +61,8 @@ impl Contract {
         metadata: serde_json::Value,
         // date: String,
     ) -> Promise {
-        let id = env::predecessor_account_id();
-        let mut event = Event::create_event(id.clone(), &metadata);
+        let id = env::current_account_id();
+        let mut event = Event::create_event(env::predecessor_account_id(), &metadata);
         let event_definations: Event = serde_json:: from_str(&metadata.to_string()).unwrap();
 
 
@@ -80,7 +80,7 @@ impl Contract {
 
 
         let event_name = String::from(event.get_name());
-        let subaccount_name = format!("{}.{}.{}", &event_name[0..5], "wagmeet-owner", id.clone());
+        let subaccount_name = format!("{}.{}", &event_name[0..5], id.clone());
         let event_account = &subaccount_name.to_lowercase().trim().to_string();
 
         let fn_name = b"new_default_meta".to_vec();
@@ -94,7 +94,7 @@ impl Contract {
             .deploy_contract(CODE.to_vec())
             .then(Promise::new(event_account.to_string()).function_call(
                 fn_name,
-                json!({ "owner_id": id, "name" : event_definations.name.to_string(), "symbol" : event_definations.symbol.to_string(), "description" : event_definations.description.to_string()  })
+                json!({ "owner_id": env::predecessor_account_id(), "name" : event_definations.name.to_string(), "symbol" : event_definations.symbol.to_string(), "description" : event_definations.description.to_string()  })
                     .to_string()
                     .as_bytes()
                     .to_vec(),
@@ -104,7 +104,7 @@ impl Contract {
     }
 
     pub fn delete_event_account(&mut self, account: AccountId) -> Promise {
-        Promise::new(account.to_string()).delete_account(env::predecessor_account_id())
+        Promise::new(account.to_string()).delete_account(env::current_account_id())
     }
 
     pub fn all_events_by_id(&mut self, hostid: AccountId) -> Vec<structs::Event> {
@@ -122,28 +122,6 @@ impl Contract {
         ans
     }
 
-    pub fn contract_initialize(contract_a: AccountId, contract_b: AccountId, name : String) -> Promise {
-        let fn_name = b"new_default_meta".to_vec();
-        Promise::new(contract_b.clone()).function_call(
-            fn_name,
-            json!({ "owner_id": contract_b, "name" : name })
-                .to_string()
-                .as_bytes()
-                .to_vec(),
-            NO_DEPOSIT,
-            XCC_GAS,
-        )
-    }
 
-    #[payable]
-    pub fn nft_mint(token_id : String, event_contract : AccountId, media : String) -> Promise {
-        let fn_name = b"nft_mint".to_vec();
-        log!("token_id : {}, media :{}", token_id, media);
-        Promise:: new(event_contract.clone()).function_call(
-            fn_name,
-            json!({ "token_id": token_id,"metadata" : { "media": media, "copies": 1}, "receiver_id" : env::predecessor_account_id()}).to_string().as_bytes().to_vec(),
-            MINT_PRICE,
-            GAS,
-        )
-    }
+    
 }

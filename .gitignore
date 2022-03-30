@@ -1,6 +1,7 @@
 nft_contract/contract/target
 organizer/target
 organizer/mytests.sh
+organizer/scripts.sh
 organizer/clear_account.sh
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
