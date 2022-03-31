@@ -94,7 +94,6 @@ impl Contract {
 
         // FIXME: Check below functionality - fix it
         // event.set_event_address(event_account.to_string());
-
         Promise::new(event_account.to_string())
             .create_account()
             .add_full_access_key(env::signer_account_pk())
