@@ -7,14 +7,16 @@ near call $NEAR_CONTRACT_ID_4 new_default_meta '{"owner_id": "'$NEAR_ID'", "name
 
 
 
-
-
 echo "-----------------------CONRTACT METADATA-----------------------"
 # view metadata
 near view $NEAR_CONTRACT_ID_2 nft_metadata
 near view $NEAR_CONTRACT_ID_3 nft_metadata
 near view $NEAR_CONTRACT_ID_4 nft_metadata
 
+
+#to enable and disable minting
+near call $NEAR_CONTRACT_ID_2 toggle_mint --accountId $NEAR_ID
+near call $NEAR_CONTRACT_ID_3 toggle_mint --accountId $NEAR_ID
 
 
 
@@ -30,9 +32,6 @@ near call $NEAR_CONTRACT_ID_3 nft_mint '{"token_id": "5", "receiver_id": "'$NEAR
 
 
 near call $NEAR_CONTRACT_ID_4 nft_mint '{"token_id": "6", "receiver_id": "'$NEAR_ID'", "metadata": { "media": "https://ipfs.io/ipfs/QmbTtnMWsGHU2v57K3Uh8j4xbttm2sszVuzZTZHE3vyvZf", "copies": 1}}' --accountId $NEAR_ID --deposit 0.1
-
-
-
 
 
 echo "-----------------------NFTs By Owner-----------------------"

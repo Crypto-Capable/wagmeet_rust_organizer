@@ -39,6 +39,8 @@ pub struct Contract {
 
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
+
+    pub is_mint_enabled : bool
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -100,6 +102,7 @@ impl Contract {
             ),
             //set the owner_id field equal to the passed in owner_id. 
             owner_id,
+            is_mint_enabled : false,
             metadata: LazyOption::new(
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                 Some(&metadata),
@@ -108,5 +111,10 @@ impl Contract {
 
         //return the Contract object
         this
+    }
+
+    pub fn toggle_mint(&mut self) -> bool {
+        self.is_mint_enabled = !self.is_mint_enabled;
+        self.is_mint_enabled
     }
 }

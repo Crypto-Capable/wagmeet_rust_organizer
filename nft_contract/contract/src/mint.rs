@@ -6,8 +6,17 @@ use std::convert::{TryFrom, TryInto};
 impl Contract {
     #[payable]
     pub fn nft_mint(&mut self, token_id: TokenId, metadata: TokenMetadata, receiver_id: AccountId) {
+
         //measure the initial storage being used on the contract
         let initial_storage_usage = env::storage_usage();
+
+        // Check if minting is enabled on event or not. If not, throw error.
+        let is_mint_enabled : bool = self.is_mint_enabled;
+        log!("mint value :{}", is_mint_enabled);
+        assert!(
+            is_mint_enabled,
+            "Buying is not enabled on this event, Try after some time."
+        );
 
         //specify the token struct that contains the owner ID
         let token = Token {
