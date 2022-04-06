@@ -70,18 +70,21 @@ impl Contract {
          */
         // get contract account
         let id = env::current_account_id();
-        let mut event = Event::create_event(env::predecessor_account_id(), &metadata);
+        let signer_id = env::signer_account_id();   
+        log!("ID :{}", id);
+        log!("Host ID :{}", signer_id);
+        let mut event = Event::create_event(env::signer_account_id(), &metadata);
         let event_definations: Event = serde_json::from_str(&metadata.to_string()).unwrap();
 
-        // event.set_date(date);
-        if !(self.host_list.contains(&id)) {
-            self.host_list.insert(&id);
+        // The contract account was being stored inside the host_list. Changed it to the signed account
+        if !(self.host_list.contains(&signer_id)) {
+            self.host_list.insert(&signer_id);
             let _set: UnorderedSet<Event> = UnorderedSet::new(b"w".to_vec());
-            self.event_list.insert(&id, &_set);
+            self.event_list.insert(&signer_id, &_set);
         }
-        let mut set_test = self.event_list.get(&id).unwrap();
+        let mut set_test = self.event_list.get(&signer_id).unwrap();
         set_test.insert(&event);
-        self.event_list.insert(&id, &set_test);
+        self.event_list.insert(&signer_id, &set_test);
 
         // create a sub account name using event name and contract ID.
         let event_name = String::from(event.get_name());
