@@ -39,6 +39,8 @@ pub struct Contract {
 
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
+
+    pub is_mint_enabled : bool
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -61,18 +63,28 @@ impl Contract {
         this initializes the contract with default metadata so the
         user doesn't have to manually type metadata.
     */
-    #[init]
-    pub fn new_default_meta(owner_id: AccountId) -> Self {
+    #[init]#[payable]
+    pub fn new_default_meta(owner_id: AccountId, name:String, symbol:String, description : String) -> Self {
         //calls the other function "new: with some default metadata and the owner_id passed in 
+
+        //v2 -> price will be used to set the ticket price
+        // let price : Balance = env::attached_deposit();
         Self::new(
             owner_id,
             NFTContractMetadata {
                 spec: "nft-1.0.0".to_string(),
-                name: "Wagmeet Contract".to_string(),
-                symbol: "Hello World".to_string(),
+                name: name.to_string(),
+                symbol: symbol.to_string(),
+                // price : price,
+                icon: None,
+                base_uri: None,
+                reference: None,
+                reference_hash: None,
+                desc : description.to_string(),
             },
         )
     }
+
     /*
         initialization function (can only be called once).
         this initializes the contract with metadata that was passed in and
@@ -90,6 +102,7 @@ impl Contract {
             ),
             //set the owner_id field equal to the passed in owner_id. 
             owner_id,
+            is_mint_enabled : false,
             metadata: LazyOption::new(
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                 Some(&metadata),
@@ -100,16 +113,8 @@ impl Contract {
         this
     }
 
-    // pub fn check_balance(&mut self, contract_a: AccountId, method_name: String, account_id: AccountId) -> Promise {
-    //     let mut amount = 0;
-    //     if account_id == "matt" {
-    //         amount = 1000;
-    //     }
-    //     Promise::new(contract_a).function_call(
-    //         method_name.into_bytes(),
-    //         json!({ "amount": amount }).to_string().as_bytes().to_vec(),
-    //         NO_DEPOSIT,
-    //         GAS,
-    //     )
-    // }
+    pub fn toggle_mint(&mut self) -> bool {
+        self.is_mint_enabled = !self.is_mint_enabled;
+        self.is_mint_enabled
+    }
 }
