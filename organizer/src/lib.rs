@@ -8,21 +8,19 @@ use near_sdk::{
     env, near_bindgen, serde_json::json, AccountId, Balance, BorshStorageKey, Gas, Promise,
 };
 const CODE: &[u8] = include_bytes!(
-    "../../nft_contract/contract/target/wasm32-unknown-unknown/release/nft_simple.wasm"
+    "../../nft_contract/target/wasm32-unknown-unknown/release/nft_contract.wasm"
 );
 
 mod structs;
-mod traits;
 
 use crate::structs::Event;
 pub use structs::*;
-pub use traits::*;
 
 const NO_DEPOSIT: Balance = 0;
 const MINT_PRICE: Balance = 0;
 const GAS: Gas = 100_000_000_000_000;
 pub const XCC_GAS: Gas = 20000000000000;
-const INITIAL_BALANCE: Balance = 2_500_000_000_000_000_000_000_000; //
+const INITIAL_BALANCE: Balance = 5_500_000_000_000_000_000_000_000; //
 
 near_sdk::setup_alloc!();
 
@@ -60,6 +58,7 @@ impl Contract {
     pub fn add_event(
         &mut self,
         metadata: serde_json::Value,
+        total_tickets: u64
     ) -> Promise {
         #[allow(unused_doc_comments)]
         /**
@@ -101,7 +100,7 @@ impl Contract {
             .deploy_contract(CODE.to_vec())
             .then(Promise::new(event_account.to_string()).function_call(
                 fn_name,
-                json!({ "owner_id": env::predecessor_account_id(), "name" : event_definations.name.to_string(), "symbol" : event_definations.symbol.to_string(), "description" : event_definations.description.to_string()  })
+                json!({ "owner_id": env::predecessor_account_id(), "name" : event_definations.name.to_string(), "symbol" : event_definations.symbol.to_string(), "description" : event_definations.description.to_string(), "total_tickets" : total_tickets })
                     .to_string()
                     .as_bytes()
                     .to_vec(),
@@ -127,5 +126,9 @@ impl Contract {
             ans.append(&mut vec2);
         }
         ans
+    }
+
+    pub fn all_hosts(&self) -> Vec<AccountId> {
+        self.host_list.to_vec()
     }
 }

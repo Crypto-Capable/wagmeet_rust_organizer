@@ -5,7 +5,30 @@ use std::convert::{TryFrom, TryInto};
 #[near_bindgen]
 impl Contract {
     #[payable]
-    pub fn nft_mint(&mut self, token_id: TokenId, metadata: TokenMetadata, receiver_id: AccountId) {
+    pub fn nft_mint(&mut self, tokenid: String, receiver_id: AccountId) {
+       let token: TokenId = tokenid;
+        Self::nft_form(
+            self,
+            token,
+            TokenMetadata {
+                title: Some(self.get_title()),
+                description: Some(self.get_desc()),
+                media: None,
+                media_hash: None,
+                copies: None, 
+                issued_at: None, 
+                expires_at: None,
+                starts_at: None,
+                updated_at: None, 
+                extra: None,
+                reference: None, 
+                reference_hash: None, 
+            },
+            receiver_id,
+        )
+    }
+
+    pub fn nft_form(&mut self, token_id: TokenId, metadata: TokenMetadata, receiver_id: AccountId) {
 
         //measure the initial storage being used on the contract
         let initial_storage_usage = env::storage_usage();
@@ -16,6 +39,13 @@ impl Contract {
         assert!(
             is_mint_enabled,
             "Buying is not enabled on this event, Try after some time."
+        );
+
+        let ticket_available : bool = self.total_tickets > self.get_total_tickets_sold();
+        log!("ticket_available :{}", self.get_total_tickets_sold());
+        assert!(
+            ticket_available,
+            "No Tickets available, better luck next time :)"
         );
 
         //specify the token struct that contains the owner ID
@@ -45,6 +75,7 @@ impl Contract {
         let mut data = metadata;
         data.title = Some(title);
         data.description = Some(description);
+        dec_ticket();
 
         // v2 -> for marking attendence
         // data.is_attended = Some(false);

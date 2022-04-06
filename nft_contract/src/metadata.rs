@@ -39,6 +39,8 @@ pub struct TokenMetadata {
     // pub is_attended: Option<bool>, -> V2
 }
 
+
+
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct Token {
     //owner of the token
@@ -63,6 +65,7 @@ pub trait NonFungibleTokenMetadata {
     // fn get_price(&self) ->Balance;
     fn get_title(&self) -> String;
     fn get_desc(&self) -> String;
+    fn get_total_tickets_sold(&self) -> u64;
 }
 
 #[near_bindgen]
@@ -78,5 +81,9 @@ impl NonFungibleTokenMetadata for Contract {
     }
     fn get_desc(&self) -> String {
         self.metadata.get().unwrap().desc
+    }
+
+    fn get_total_tickets_sold (&self) -> u64 {
+        self.total_tickets_sold
     }
 }
