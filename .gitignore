@@ -1,5 +1,5 @@
-nft_contract/target
-organizer/target
+nft_contract/target/
+organizer/target/
 
 npm-debug.log*
 yarn-debug.log*
