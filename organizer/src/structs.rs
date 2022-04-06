@@ -1,42 +1,69 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::json_types::Base64VecU8;
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{AccountId};
-use chrono::{ NaiveDate, NaiveDateTime, NaiveTime};
+use near_sdk::collections::LazyOption;
+use near_sdk::json_types::ValidAccountId;
+use near_sdk::{
+    env, near_bindgen, AccountId, BorshStorageKey};
+use near_sdk::collections::UnorderedMap;
+use near_sdk::collections::Vector;
+use near_sdk::collections::LookupMap;
+use serde_json::Map;
+use serde_json::Value;
+use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime};
+use chrono::format::ParseError;
+use std::ptr::null;
+use std::fmt::Debug;
+
+use crate::*;
+
 
 
 /// Metadata for the NFT contract itself.
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Event {
-    name: String,              // required, ex. "Mosaics"
-    location: String,  
-    date: Option<i64>,  
-    host: AccountId,        // required, ex. "MOSIAC"
-    bio: Option<String>,      // Data URL
-    email: Option<String>,
-    total_tickets: i64,
-    total_tickets_sold: i64,
-    ticket_price: i64,
-    is_mint_enabled: bool, 
-
+    pub name: String,
+    pub description : String,
+    pub symbol : String,  
+    pub location: String,  
+    pub host: AccountId, 
+    pub event_address : Option<String> 
+}
+pub struct TokenMetadata {
+    pub title: Option<String>, // ex. "Arch Nemesis: Mail Carrier" or "Parcel #5055"
+    pub description: Option<String>, // free-form description
+    pub media: Option<String>, // URL to associated media, preferably to decentralized, content-addressed storage
+    pub media_hash: Option<Base64VecU8>, // Base64-encoded sha256 hash of content referenced by the `media` field. Required if `media` is included.
+    pub copies: Option<u64>, // number of copies of this set of metadata in existence when token was minted.
+    pub issued_at: Option<u64>, // When token was issued or minted, Unix epoch in milliseconds
+    pub expires_at: Option<u64>, // When token expires, Unix epoch in milliseconds
+    pub starts_at: Option<u64>, // When token starts being valid, Unix epoch in milliseconds
+    pub updated_at: Option<u64>, // When token was last updated, Unix epoch in milliseconds
+    pub extra: Option<String>, // anything extra the NFT wants to store on-chain. Can be stringified JSON.
+    pub reference: Option<String>, // URL to an off-chain JSON file with more info.
+    pub reference_hash: Option<Base64VecU8>, // Base64-encoded sha256 hash of JSON from reference field. Required if `reference` is included.
+    // pub is_attended: Option<bool>, -> V2
 }
 
 impl Event {
 
-    pub fn create_event(hostid: AccountId, metadata: serde_json::Value) -> Event {
+    pub fn create_event(hostid: AccountId, metadata: &serde_json::Value) -> Event {
+        let id = env::current_account_id();
         let event_definations: Event = serde_json:: from_str(&metadata.to_string()).unwrap();
+
+        // FIXME: add event address from organizer contract and remove below lines.
+        let event_name = String::from(event_definations.name.to_string());
+        let subaccount_name = format!("{}.{}", &event_name[0..5], id.clone());
+        let event_account = &subaccount_name.to_lowercase().trim().to_string();
         // let date_format = NaiveDate::parse_from_str(&event_definations.date.to_string(), "%d-%m-%Y").unwrap();
         Event {
             name: event_definations.name.to_string(),
             location: event_definations.location.to_string(),
-            date: None,
+            description: event_definations.description.to_string(),
+            symbol: event_definations.symbol.to_string(),
             host: hostid,
-            bio: None,
-            email: None,
-            total_tickets: event_definations.total_tickets,
-            total_tickets_sold: 0,
-            ticket_price: event_definations.ticket_price,
-            is_mint_enabled: false,
+            event_address : Some(event_account.to_string()),
         }
     }
 
@@ -48,47 +75,13 @@ impl Event {
         self.location.clone()
     }
 
-    pub fn get_date(&self) -> std::option::Option<i64> {
-        self.date.clone()
-    }
-
     pub fn get_host(&self) -> String {
         self.host.to_string()
     }
 
-    pub fn get_bio(&self) -> String {
-        self.bio.as_ref().unwrap().to_string()
+    pub fn set_event_address(&mut self, address : String) {
+        self.event_address = Some(address);
     }
-
-    pub fn get_email(&self) -> String {
-        self.email.as_ref().unwrap().to_string()
-    }
-
-    pub fn get_total_tickets(&mut self) -> i64 {
-        self.total_tickets.clone()
-    }
-
-    pub fn set_date(&mut self, date : String) {
-        let d = NaiveDate::parse_from_str(&date.to_string(), "%d-%m-%Y").unwrap();
-        let t = NaiveTime::parse_from_str("00:00:00", "%H:%M:%S").unwrap();
-        let dt = NaiveDateTime::new(d, t);
-
-        self.date = Some(dt.timestamp());
-
-    }
-   
-    pub fn set_bio(&mut self, bio: String) {
-        self.bio = Some(bio);
-    }
-
-    pub fn set_email(&mut self, email: String) {
-        self.email = Some(email);
-    }
-
-    pub fn set_total_tickets(&mut self, number : i64) {
-        self.total_tickets = number;
-    }
-     
 }
 
 impl Drop for Event {
@@ -96,45 +89,4 @@ impl Drop for Event {
         println!("Deleting the event!");
     }
     // drop(obj);
-}
-
-#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, Debug, PartialEq)]
-#[serde(crate = "near_sdk::serde")]
-pub struct TicketMetadata  {
-    title: String,              // required, ex. "Mosaics"
-    description: String,  
-    organizer_id: AccountId,  
-    event_id: String,
-    created_at: Option<i64>,
-    sold_at: Option<i64>,
-    is_attendence_marked: bool,
-}
-
-
-#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, Debug, PartialEq)]
-#[serde(crate = "near_sdk::serde")]
-pub struct Ticket  {
-    token_id: String,              // required, ex. "Mosaics"
-    owner_id: AccountId,  
-    metadata: TicketMetadata,  
-}
-
-impl Ticket {
-
-    pub fn new(hostid: AccountId, metadata: serde_json::Value) -> Event {
-        let event_definations: Event = serde_json:: from_str(&metadata.to_string()).unwrap();
-        // let date_format = NaiveDate::parse_from_str(&event_definations.date.to_string(), "%d-%m-%Y").unwrap();
-        Event {
-            name: event_definations.name.to_string(),
-            location: event_definations.location.to_string(),
-            date: None,
-            host: hostid,
-            bio: None,
-            email: None,
-            total_tickets: event_definations.total_tickets,
-            total_tickets_sold: 0,
-            ticket_price: event_definations.ticket_price,
-            is_mint_enabled: false,
-        }
-    }
 }
