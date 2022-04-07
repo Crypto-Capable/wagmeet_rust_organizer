@@ -1,3 +1,4 @@
+use near_sdk::PublicKey;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::LookupMap;
 use near_sdk::collections::UnorderedMap;
@@ -7,6 +8,8 @@ use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
     env, near_bindgen, serde_json::json, AccountId, Balance, BorshStorageKey, Gas, Promise,
 };
+use near_sdk::utils::assert_one_yocto;
+
 const CODE: &[u8] = include_bytes!(
     "../../nft_contract/contract/target/wasm32-unknown-unknown/release/nft_simple.wasm"
 );
@@ -37,6 +40,8 @@ enum StorageKey {
 pub struct Contract {
     event_list: UnorderedMap<AccountId, UnorderedSet<Event>>,
     host_list: UnorderedSet<AccountId>,
+    pub owner_id: AccountId,
+    // contract_public_key: PublicKey
 }
 
 impl Default for Contract {
@@ -48,12 +53,24 @@ impl Default for Contract {
 
 #[near_bindgen]
 impl Contract {
+    // modifier to check whether actor calling is owner or not.
+    pub fn assert_only_owner(&self) {
+        assert_one_yocto();
+        assert_eq!(
+            env::predecessor_account_id(),
+            self.owner_id,
+            "Only contract owner can call this method"
+        );
+    }
+
     #[init]
     pub fn new() -> Self {
         assert!(!env::state_exists(), "Already initialized");
         Self {
             event_list: UnorderedMap::<AccountId, UnorderedSet<Event>>::new(StorageKey::Event),
             host_list: UnorderedSet::new(b"s".to_vec()),
+            owner_id: env::predecessor_account_id(),
+            // contract_public_key : env::signer_account_pk()
         }
     }
 
@@ -71,7 +88,7 @@ impl Contract {
          */
         // get contract account
         let id = env::current_account_id();
-        let mut event = Event::create_event(env::predecessor_account_id(), &metadata);
+        let event = Event::create_event(env::predecessor_account_id(), &metadata);
         let event_definations: Event = serde_json::from_str(&metadata.to_string()).unwrap();
 
         // event.set_date(date);
@@ -88,6 +105,12 @@ impl Contract {
         let event_name = String::from(event.get_name());
         let subaccount_name = format!("{}.{}", &event_name[0..5], id.clone());
         let event_account = &subaccount_name.to_lowercase().trim().to_string();
+
+        // check is sub-account name is valid or not
+        assert!(
+            env::is_valid_account_id(event_account.as_bytes()),
+            "Invalid character in sub account"
+        );
 
         // function name to be called to initialize NFT-EVENT-Contract
         let fn_name = b"new_default_meta".to_vec();
