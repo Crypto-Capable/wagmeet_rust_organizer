@@ -43,8 +43,6 @@ pub struct Contract {
     pub is_mint_enabled : bool,
 
     pub total_tickets : u64,
-
-    total_tickets_sold : u64
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -113,7 +111,6 @@ impl Contract {
                 Some(&metadata),
             ),
             total_tickets : total_tickets,
-            total_tickets_sold : 0,
         };
 
         //return the Contract object
@@ -123,10 +120,5 @@ impl Contract {
     pub fn toggle_mint(&mut self) -> bool {
         self.is_mint_enabled = !self.is_mint_enabled;
         self.is_mint_enabled
-    }
-    
-    #[payable]
-    pub fn dec_ticket(&mut self){
-        self.total_tickets_sold = self.total_tickets_sold + 1;
     }
 }

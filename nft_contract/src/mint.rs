@@ -41,7 +41,7 @@ impl Contract {
             "Buying is not enabled on this event, Try after some time."
         );
 
-        let ticket_available : bool = self.total_tickets > self.get_total_tickets_sold();
+        let ticket_available : bool = self.total_tickets > self.nft_total_supply();
         log!("ticket_available :{}", self.get_total_tickets_sold());
         assert!(
             ticket_available,
@@ -75,7 +75,7 @@ impl Contract {
         let mut data = metadata;
         data.title = Some(title);
         data.description = Some(description);
-        dec_ticket();
+      
 
         // v2 -> for marking attendence
         // data.is_attended = Some(false);
