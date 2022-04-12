@@ -18,7 +18,7 @@ pub struct NFTContractMetadata {
     pub reference: Option<String>, // URL to a JSON file with more info
     pub reference_hash: Option<Base64VecU8>, // Base64-encoded sha256 hash of JSON from reference field. Required if `reference` is included.
     // pub price: Balance,
-    pub desc: String,              // required, description for the event
+    pub desc: String,                 // required, description for the event
 }
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
@@ -79,4 +79,5 @@ impl NonFungibleTokenMetadata for Contract {
     fn get_desc(&self) -> String {
         self.metadata.get().unwrap().desc
     }
+
 }
