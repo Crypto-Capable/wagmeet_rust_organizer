@@ -40,7 +40,9 @@ pub struct Contract {
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
 
-    pub is_mint_enabled : bool
+    pub is_mint_enabled : bool,
+
+    pub total_tickets : u64
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -64,7 +66,7 @@ impl Contract {
         user doesn't have to manually type metadata.
     */
     #[init]#[payable]
-    pub fn new_default_meta(owner_id: AccountId, name:String, symbol:String, description : String) -> Self {
+    pub fn new_default_meta(owner_id: AccountId, name:String, symbol:String, description : String, total_tickets : u64) -> Self {
         //calls the other function "new: with some default metadata and the owner_id passed in 
 
         //v2 -> price will be used to set the ticket price
@@ -82,6 +84,7 @@ impl Contract {
                 reference_hash: None,
                 desc : description.to_string(),
             },
+            total_tickets
         )
     }
 
@@ -91,7 +94,7 @@ impl Contract {
         the owner_id. 
     */
     #[init]
-    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata, total_tickets : u64) -> Self {
         //create a variable of type Self with all the fields initialized. 
         let this = Self {
             //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
@@ -103,6 +106,7 @@ impl Contract {
             //set the owner_id field equal to the passed in owner_id. 
             owner_id,
             is_mint_enabled : false,
+            total_tickets : total_tickets,
             metadata: LazyOption::new(
                 StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
                 Some(&metadata),

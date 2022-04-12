@@ -18,6 +18,9 @@ impl Contract {
             "Buying is not enabled on this event, Try after some time."
         );
 
+        let is_tickets_available : bool = self.total_tickets > self.token_metadata_by_id.len();
+        assert!(is_tickets_available, "All tickets SOLD OUT.");
+
         //specify the token struct that contains the owner ID
         let token = Token {
             //set the owner ID equal to the receiver ID passed into the function

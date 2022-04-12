@@ -151,4 +151,8 @@ impl Contract {
         }
         ans
     }
+
+    pub fn all_hosts(&self) -> Vec<AccountId> {
+        self.host_list.to_vec()
+    }
 }
