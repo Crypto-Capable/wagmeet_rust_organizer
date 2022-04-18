@@ -28,6 +28,7 @@ pub struct Event {
     pub symbol : String,  
     pub location: String,  
     pub host: AccountId, 
+    pub total_tickets : u64,
     pub event_address : Option<String> 
 }
 pub struct TokenMetadata {
@@ -63,6 +64,7 @@ impl Event {
             description: event_definations.description.to_string(),
             symbol: event_definations.symbol.to_string(),
             host: hostid,
+            total_tickets : event_definations.total_tickets,
             event_address : Some(event_account.to_string()),
         }
     }

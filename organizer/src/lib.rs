@@ -88,18 +88,19 @@ impl Contract {
          */
         // get contract account
         let id = env::current_account_id();
+        let signer_id = env::signer_account_id();
         let event = Event::create_event(env::predecessor_account_id(), &metadata);
         let event_definations: Event = serde_json::from_str(&metadata.to_string()).unwrap();
 
         // event.set_date(date);
-        if !(self.host_list.contains(&id)) {
-            self.host_list.insert(&id);
+        if !(self.host_list.contains(&signer_id)) {
+            self.host_list.insert(&signer_id);
             let _set: UnorderedSet<Event> = UnorderedSet::new(b"w".to_vec());
-            self.event_list.insert(&id, &_set);
+            self.event_list.insert(&signer_id, &_set);
         }
-        let mut set_test = self.event_list.get(&id).unwrap();
+        let mut set_test = self.event_list.get(&signer_id).unwrap();
         set_test.insert(&event);
-        self.event_list.insert(&id, &set_test);
+        self.event_list.insert(&signer_id, &set_test);
 
         // create a sub account name using event name and contract ID.
         let event_name = String::from(event.get_name());
@@ -124,7 +125,7 @@ impl Contract {
             .deploy_contract(CODE.to_vec())
             .then(Promise::new(event_account.to_string()).function_call(
                 fn_name,
-                json!({ "owner_id": env::predecessor_account_id(), "name" : event_definations.name.to_string(), "symbol" : event_definations.symbol.to_string(), "description" : event_definations.description.to_string()  })
+                json!({ "owner_id": env::predecessor_account_id(), "name" : event_definations.name.to_string(), "symbol" : event_definations.symbol.to_string(), "description" : event_definations.description.to_string(), "total_tickets":event_definations.total_tickets  })
                     .to_string()
                     .as_bytes()
                     .to_vec(),
