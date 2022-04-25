@@ -1,5 +1,7 @@
 near delete wagmeet-owner.$NEAR_ID $NEAR_ID
 near delete fjldh.wagmeet.testnet wagmeet.testnet
+near delete hey-wagmeet.testnet $NEAR_ID
+
 
 
 near create-account wagmeet-owner.$NEAR_ID --masterAccount $NEAR_ID --initialBalance 50

@@ -1,14 +1,14 @@
-use near_sdk::PublicKey;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::LookupMap;
 use near_sdk::collections::UnorderedMap;
 use near_sdk::collections::UnorderedSet;
 use near_sdk::log;
 use near_sdk::serde::{Deserialize, Serialize};
+use near_sdk::utils::assert_one_yocto;
+use near_sdk::PublicKey;
 use near_sdk::{
     env, near_bindgen, serde_json::json, AccountId, Balance, BorshStorageKey, Gas, Promise,
 };
-use near_sdk::utils::assert_one_yocto;
 
 const CODE: &[u8] = include_bytes!(
     "../../nft_contract/contract/target/wasm32-unknown-unknown/release/nft_simple.wasm"
@@ -74,10 +74,7 @@ impl Contract {
         }
     }
 
-    pub fn add_event(
-        &mut self,
-        metadata: serde_json::Value,
-    ) -> Promise {
+    pub fn add_event(&mut self, metadata: serde_json::Value) -> Promise {
         #[allow(unused_doc_comments)]
         /**
          * STEPS :
@@ -140,6 +137,19 @@ impl Contract {
 
     pub fn all_events_by_id(&mut self, hostid: AccountId) -> Vec<structs::Event> {
         self.event_list.get(&hostid).unwrap().to_vec()
+    }
+
+    pub fn get_event_by_id(&mut self, event_id: AccountId, hostid: AccountId) -> Event {
+        let events = self.event_list.get(&hostid).unwrap().to_vec();
+        log!("events : {:?}", events);
+        let mut event: Event = Event::new();
+        log!("Event : {:?}", event);
+        for i in events {
+            if i.event_address == Some(event_id.clone()) {
+                event = i;
+            }          
+        }
+        event
     }
 
     pub fn all_events(&self) -> Vec<Event> {
