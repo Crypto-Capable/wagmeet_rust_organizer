@@ -27,6 +27,7 @@ impl Contract {
             owner_id: receiver_id,
         };
 
+
         //insert the token ID and token struct and make sure that the token doesn't exist
         assert!(
             self.tokens_by_id.insert(&token_id, &token).is_none(),

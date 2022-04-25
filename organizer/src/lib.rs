@@ -55,7 +55,6 @@ impl Default for Contract {
 impl Contract {
     // modifier to check whether actor calling is owner or not.
     pub fn assert_only_owner(&self) {
-        assert_one_yocto();
         assert_eq!(
             env::predecessor_account_id(),
             self.owner_id,
@@ -139,7 +138,7 @@ impl Contract {
         self.event_list.get(&hostid).unwrap().to_vec()
     }
 
-    pub fn get_event_by_id(&mut self, event_id: AccountId, hostid: AccountId) -> Event {
+    pub fn get_event_by_id(&self, event_id: AccountId, hostid: AccountId) -> Event {
         let events = self.event_list.get(&hostid).unwrap().to_vec();
         log!("events : {:?}", events);
         let mut event: Event = Event::new();

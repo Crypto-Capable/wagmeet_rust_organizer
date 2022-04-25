@@ -19,6 +19,8 @@ near call $CONTRACT add_event '{"metadata" : { "name" : "3HELLOWORLD","descripti
 # near call dakjh.wagmeet-owner.test-nea2.testnet nft_mint '{"token_id": "3", "receiver_id": "'$NEAR_ID'", "metadata": { "media": "https://ipfs.io/ipfs/QmW11eYCCmcWL6zxeVLvRYXmLr6Hbu2Bz45fshvLPyTKk2", "copies": 1}}' --accountId $NEAR_ID --deposit 0.1
 
 near call $CONTRACT all_events  --accountId $NEAR_ID
+near call 3hell.hey-wagmeet.testnet toggle_mint  --accountId $NEAR_ID
+
 near call $CONTRACT all_hosts  --accountId $NEAR_ID
 near call $CONTRACT get_event_by_id '{"event_id" : "3hell.hey-wagmeet.testnet", "hostid" : "wag2.testnet"}'  --accountId $NEAR_ID
 near call $CONTRACT get_event_by_id '{"event_id" : "8good.hey-wagmeet.testnet", "hostid" : "krishna191.testnet"}'  --accountId $NEAR_ID
