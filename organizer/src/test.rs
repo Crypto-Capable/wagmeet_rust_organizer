@@ -2,6 +2,7 @@ use crate::Contract;
 use near_sdk::{testing_env, VMContext};
 use near_sdk::MockedBlockchain;
 use serde_json::Map;
+use near_sdk::log;
 use serde_json::Value;
 use near_sdk::{
     env, ext_contract, near_bindgen, AccountId, Balance, EpochHeight, Promise, PromiseResult,
@@ -38,27 +39,30 @@ fn get_context(input: Vec<u8>, is_view: bool) -> VMContext {
  #[test]
 fn test_get_initialized(){
     let context =get_context(vec![], false);
-    testing_env!(context);
-    let contract = Contract::default();
-    contract.new();
-    assert_eq!(predecessor_account_id,contract.owner_id);
+    let id = context.predecessor_account_id.to_string();
+    print!("{}", id );
+    
+    testing_env!(context);    
+    let contract = Contract::new();
+    assert_eq!(id,contract.owner_id);    
 }
 #[test]
 fn test_all_events_id(){
     let context =get_context(vec![], false);
     testing_env!(context);
-    let contract = Contract::default();
+    let contract = Contract::new();
+    
     let event = contract.get_event_by_id(current_account_id);
     assert_eq!("Breeze",event.name);
 }
-#[test]
-fn test_all_hosts(){
-    let context =get_context(vec![], false);
-    testing_env!(context);
-    let contract = Contract::default();
-    let hosts = contract.all_hosts();
-    assert_eq!(current_account_id,hosts[0]);
-}
+// #[test]
+// fn test_all_hosts(){
+//     let context =get_context(vec![], false);
+//     testing_env!(context);
+//     let contract = Contract::default();
+//     let hosts = contract.all_hosts();
+//     assert_eq!(current_account_id,hosts[0]);
+// }
 // #[test]
 //   fn test_withdraw(){
 //     let context =get_context(vec![], false);

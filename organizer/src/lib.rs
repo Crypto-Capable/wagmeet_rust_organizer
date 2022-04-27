@@ -16,6 +16,7 @@ const CODE: &[u8] = include_bytes!(
 
 mod structs;
 mod traits;
+mod test;
 
 use crate::structs::Event;
 pub use structs::*;
