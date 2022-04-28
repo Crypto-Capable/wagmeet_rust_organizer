@@ -46,15 +46,15 @@ fn test_get_initialized(){
     let contract = Contract::new();
     assert_eq!(id,contract.owner_id);    
 }
-#[test]
-fn test_all_events_id(){
-    let context =get_context(vec![], false);
-    testing_env!(context);
-    let contract = Contract::new();
-    
-    let event = contract.get_event_by_id(current_account_id);
-    assert_eq!("Breeze",event.name);
-}
+// #[test]
+// fn test_all_events_id(){
+//     let context =get_context(vec![], false);
+//     testing_env!(context);
+//     let contract = Contract::new();
+
+//     let event = contract.get_event_by_id(current_account_id);
+//     assert_eq!("Breeze",event.name);
+// }
 // #[test]
 // fn test_all_hosts(){
 //     let context =get_context(vec![], false);
