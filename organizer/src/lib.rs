@@ -26,7 +26,7 @@ const NO_DEPOSIT: Balance = 0;
 const MINT_PRICE: Balance = 0;
 const GAS: Gas = 100_000_000_000_000;
 pub const XCC_GAS: Gas = 20000000000000;
-const INITIAL_BALANCE: Balance = 2_500_000_000_000_000_000_000_000; //
+const INITIAL_BALANCE: Balance = 4_500_000_000_000_000_000_000_000; //
 
 near_sdk::setup_alloc!();
 
