@@ -27,6 +27,7 @@ pub struct Event {
     pub host: AccountId,
     pub total_tickets: u64,
     pub event_address: Option<String>,
+    pub is_deleted: bool,
 }
 pub struct TokenMetadata {
     pub title: Option<String>, // ex. "Arch Nemesis: Mail Carrier" or "Parcel #5055"
@@ -54,6 +55,7 @@ impl Event {
             host: "".to_string(),
             total_tickets: 0,
             event_address: Some("".to_string()),
+            is_deleted: false,
         }
     }
 
@@ -74,6 +76,22 @@ impl Event {
             host: hostid,
             total_tickets: event_definations.total_tickets,
             event_address: Some(event_account.to_string()),
+            is_deleted: false,
+        }
+    }
+
+    pub fn get_event(metadata: &serde_json::Value) -> Event {
+        let event_data: Event = serde_json::from_str(&metadata.to_string()).unwrap();
+        let event_addr = event_data.event_address.as_ref().unwrap().to_string();
+        Event {
+            name: event_data.name.to_string(),
+            location: event_data.location.to_string(),
+            description: event_data.description.to_string(),
+            symbol: event_data.symbol.to_string(),
+            host: event_data.host.to_string(),
+            total_tickets: event_data.total_tickets,
+            event_address: Some(event_addr),
+            is_deleted: false,
         }
     }
 

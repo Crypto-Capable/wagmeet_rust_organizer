@@ -15,8 +15,8 @@ const CODE: &[u8] = include_bytes!(
 );
 
 mod structs;
-mod traits;
 mod test;
+mod traits;
 
 use crate::structs::Event;
 pub use structs::*;
@@ -67,7 +67,10 @@ impl Contract {
     pub fn new() -> Self {
         assert!(!env::state_exists(), "Already initialized");
         Self {
-            event_list: UnorderedMap::<AccountId, UnorderedSet<Event>>::new(StorageKey::Event),
+            // TODO: check prefix passed to new() is correct or not ?.... check starting commits to see past value
+            event_list: UnorderedMap::<AccountId, UnorderedSet<Event>>::new(env::sha256(
+                env::predecessor_account_id().as_bytes(),
+            )),
             host_list: UnorderedSet::new(b"s".to_vec()),
             owner_id: env::predecessor_account_id(),
             // contract_public_key : env::signer_account_pk()
@@ -147,7 +150,7 @@ impl Contract {
         for i in events {
             if i.event_address == Some(event_id.clone()) {
                 event = i;
-            }          
+            }
         }
         event
     }
@@ -165,5 +168,23 @@ impl Contract {
 
     pub fn all_hosts(&self) -> Vec<AccountId> {
         self.host_list.to_vec()
+    }
+
+    pub fn delete_event(&mut self, metadata: serde_json::Value) -> bool {
+        let hostid = env::predecessor_account_id();
+        let mut events = self.event_list.get(&hostid).unwrap();
+        let event: Event = Event::get_event(&metadata);
+        let is_owner = hostid == event.host;
+        assert!(
+            events.contains(&event),
+            "Event Not Found"
+        );
+        assert!(
+            is_owner,
+            "Only event owner can delete the event."
+        );
+        events.remove(&event);
+        self.event_list.insert(&hostid, &events);
+        true
     }
 }
