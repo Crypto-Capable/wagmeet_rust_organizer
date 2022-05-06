@@ -63,6 +63,7 @@ pub trait NonFungibleTokenMetadata {
     // fn get_price(&self) ->Balance;
     fn get_title(&self) -> String;
     fn get_desc(&self) -> String;
+    fn get_mint_enabled(&self) -> bool;
 }
 
 #[near_bindgen]
@@ -70,14 +71,15 @@ impl NonFungibleTokenMetadata for Contract {
     fn nft_metadata(&self) -> NFTContractMetadata {
         self.metadata.get().unwrap()
     }
-    // fn get_price(&self) -> Balance {
-    //     self.metadata.get().unwrap().price
-    // }
     fn get_title(&self) -> String {
         self.metadata.get().unwrap().name
     }
     fn get_desc(&self) -> String {
         self.metadata.get().unwrap().desc
+    }
+
+    fn get_mint_enabled(&self) -> bool {
+        self.is_mint_enabled
     }
 
 }

@@ -34,7 +34,8 @@ near call $CONTRACT all_events_by_id '{"hostid" : "wag2.testnet"}'  --accountId 
 # near call wagmeet.testnet delete_event_account '{"account":"fjldh.wagmeet.testnet"}' --accountId $NEAR_ID
 
 
-# near view hacki.wagmeet-owner.test-nea2.testnet nft_metadata
+# near view he888.hey-wagmeet.testnet nft_metadata
+# near view he888.hey-wagmeet.testnet get_mint_enabled()
 # near view dakjh.wagmeet-owner.test-nea2.testnet nft_tokens
 # near view hacki.wagmeet-owner.test-nea2.testnet nft_total_supply
 # near view hacki.wagmeet-owner.test-nea2.testnet nft_token '{"token_id": "2"}'
