@@ -138,8 +138,15 @@ impl Contract {
         Promise::new(account.to_string()).delete_account(env::current_account_id())
     }
 
-    pub fn all_events_by_id(&mut self, hostid: AccountId) -> Vec<structs::Event> {
-        self.event_list.get(&hostid).unwrap().to_vec()
+    pub fn all_events_by_id(&self, hostid: AccountId) -> Vec<structs::Event> {
+        if let Some(value) = self.event_list.get(&hostid) {
+            //if events found
+            value.to_vec()
+        } else {
+            // if no events found on passed hostis, return empty array
+            let events: Vec<Event> = Vec::new();
+            events
+        }
     }
 
     pub fn get_event_by_id(&self, event_id: AccountId, hostid: AccountId) -> Event {
@@ -175,14 +182,8 @@ impl Contract {
         let mut events = self.event_list.get(&hostid).unwrap();
         let event: Event = Event::get_event(&metadata);
         let is_owner = hostid == event.host;
-        assert!(
-            events.contains(&event),
-            "Event Not Found"
-        );
-        assert!(
-            is_owner,
-            "Only event owner can delete the event."
-        );
+        assert!(events.contains(&event), "Event Not Found");
+        assert!(is_owner, "Only event owner can delete the event.");
         events.remove(&event);
         self.event_list.insert(&hostid, &events);
         true

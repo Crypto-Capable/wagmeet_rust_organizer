@@ -15,7 +15,7 @@ near view $NEAR_CONTRACT_ID_4 nft_metadata
 
 
 #to enable and disable minting
-near call $NEAR_CONTRACT_ID_2 toggle_mint --accountId $NEAR_ID
+near call mehac.3-wagmmet.testnet toggle_mint --accountId krishna191.testnet
 near call $NEAR_CONTRACT_ID_3 toggle_mint --accountId $NEAR_ID
 near call  he888.hey-wagmeet.testnet toggle_mint --accountId wag2.testnet
 
