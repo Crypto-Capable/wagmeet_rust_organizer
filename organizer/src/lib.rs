@@ -1,11 +1,7 @@
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::LookupMap;
 use near_sdk::collections::UnorderedMap;
 use near_sdk::collections::UnorderedSet;
 use near_sdk::log;
-use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::utils::assert_one_yocto;
-use near_sdk::PublicKey;
 use near_sdk::{
     env, near_bindgen, serde_json::json, AccountId, Balance, BorshStorageKey, Gas, Promise,
 };
@@ -23,10 +19,8 @@ pub use structs::*;
 pub use traits::*;
 
 const NO_DEPOSIT: Balance = 0;
-const MINT_PRICE: Balance = 0;
-const GAS: Gas = 100_000_000_000_000;
 pub const XCC_GAS: Gas = 20000000000000;
-const INITIAL_BALANCE: Balance = 4_500_000_000_000_000_000_000_000; //
+const INITIAL_BALANCE: Balance = 4_500_000_000_000_000_000_000_000; 
 
 near_sdk::setup_alloc!();
 
@@ -89,8 +83,8 @@ impl Contract {
         // get contract account
         let id = env::current_account_id();
         let signer_id = env::signer_account_id();
-        let event = Event::create_event(env::predecessor_account_id(), &metadata);
-        let event_definations: Event = serde_json::from_str(&metadata.to_string()).unwrap();
+        let event = Event::create_event(env::signer_account_id(), &metadata);
+        let  event_definations: Event = serde_json::from_str(&metadata.to_string()).unwrap();
 
         // event.set_date(date);
         if !(self.host_list.contains(&signer_id)) {
@@ -103,9 +97,7 @@ impl Contract {
         self.event_list.insert(&signer_id, &set_test);
 
         // create a sub account name using event name and contract ID.
-        let event_name = String::from(event.get_name());
-        let subaccount_name = format!("{}.{}", &event_name[0..5], id.clone());
-        let event_account = &subaccount_name.to_lowercase().trim().to_string();
+        let event_account = event_definations.event_address.to_string();
 
         // check is sub-account name is valid or not
         assert!(
@@ -155,7 +147,7 @@ impl Contract {
         let mut event: Event = Event::new();
         log!("Event : {:?}", event);
         for i in events {
-            if i.event_address == Some(event_id.clone()) {
+            if i.event_address == event_id.to_string() {
                 event = i;
             }
         }
@@ -178,7 +170,7 @@ impl Contract {
     }
 
     pub fn delete_event(&mut self, metadata: serde_json::Value) -> bool {
-        let hostid = env::predecessor_account_id();
+        let hostid = env::signer_account_id();
         let mut events = self.event_list.get(&hostid).unwrap();
         let event: Event = Event::get_event(&metadata);
         let is_owner = hostid == event.host;

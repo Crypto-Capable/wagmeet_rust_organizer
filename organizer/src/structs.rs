@@ -1,20 +1,9 @@
-use chrono::format::ParseError;
-use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime};
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::LazyOption;
-use near_sdk::collections::LookupMap;
-use near_sdk::collections::UnorderedMap;
-use near_sdk::collections::Vector;
 use near_sdk::json_types::Base64VecU8;
-use near_sdk::json_types::ValidAccountId;
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{env, near_bindgen, AccountId, BorshStorageKey};
-use serde_json::Map;
-use serde_json::Value;
+use near_sdk::{AccountId};
 use std::fmt::Debug;
-use std::ptr::null;
 
-use crate::*;
 
 /// Metadata for the NFT contract itself.
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -26,7 +15,7 @@ pub struct Event {
     pub location: String,
     pub host: AccountId,
     pub total_tickets: u64,
-    pub event_address: Option<String>,
+    pub event_address: String,
     pub is_deleted: bool,
 }
 pub struct TokenMetadata {
@@ -54,19 +43,15 @@ impl Event {
             symbol: "".to_string(),
             host: "".to_string(),
             total_tickets: 0,
-            event_address: Some("".to_string()),
+            event_address: "".to_string(),
             is_deleted: false,
         }
     }
 
     pub fn create_event(hostid: AccountId, metadata: &serde_json::Value) -> Event {
-        let id = env::current_account_id();
         let event_definations: Event = serde_json::from_str(&metadata.to_string()).unwrap();
 
-        // FIXME: add event address from organizer contract and remove below lines.
-        let event_name = String::from(event_definations.name.to_string());
-        let subaccount_name = format!("{}.{}", &event_name[0..5], id.clone());
-        let event_account = &subaccount_name.to_lowercase().trim().to_string();
+        let event_account = event_definations.event_address.to_string();
         // let date_format = NaiveDate::parse_from_str(&event_definations.date.to_string(), "%d-%m-%Y").unwrap();
         Event {
             name: event_definations.name.to_string(),
@@ -75,14 +60,14 @@ impl Event {
             symbol: event_definations.symbol.to_string(),
             host: hostid,
             total_tickets: event_definations.total_tickets,
-            event_address: Some(event_account.to_string()),
+            event_address: event_account.to_string(),
             is_deleted: false,
         }
     }
 
     pub fn get_event(metadata: &serde_json::Value) -> Event {
         let event_data: Event = serde_json::from_str(&metadata.to_string()).unwrap();
-        let event_addr = event_data.event_address.as_ref().unwrap().to_string();
+        let event_addr = event_data.event_address.to_string();
         Event {
             name: event_data.name.to_string(),
             location: event_data.location.to_string(),
@@ -90,7 +75,7 @@ impl Event {
             symbol: event_data.symbol.to_string(),
             host: event_data.host.to_string(),
             total_tickets: event_data.total_tickets,
-            event_address: Some(event_addr),
+            event_address: event_addr,
             is_deleted: false,
         }
     }
@@ -108,7 +93,7 @@ impl Event {
     }
 
     pub fn set_event_address(&mut self, address: String) {
-        self.event_address = Some(address);
+        self.event_address = address;
     }
 }
 

@@ -11,7 +11,7 @@
 # near call $CONTRACT add_event '{"metadata" : { "name" : "7HACKMETWICE","description":"Web3 servers cant go down – they use Ethereum, a decentralized network of 1000s of computers as their backend", "symbol":"WEB3", "host":"","event_address":"","location" : "Delhi", "total_tickets":5 } }' --accountId $NEAR_ID --gas=75000000000000
 # near call $CONTRACT add_event '{"metadata" : { "name" : "WAGMEE","description":"Web3 servers cant go down – they use Ethereum, a decentralized network of 1000s of computers as their backend", "symbol":"WEB3", "host":"","event_address":"","location" : "Delhi", "total_tickets":500 } }' --accountId $NEAR_ID --gas=75000000000000
 
-near call 3-wagmmet.testnet add_event '{"metadata" : { "name" : "DAOHack","description":"Web3 servers cant go down – they use Ethereum, a decentralized network of 1000s of computers as their backend", "symbol":"WEB3", "host":"","event_address":"","location" : "Delhi", "total_tickets":10, "is_deleted":false } }' --accountId krishna191.testnet --gas=75000000000000
+near call new1-wagmeet.testnet add_event '{"metadata" : { "name" : "Hello","description":"Web3 servers cant go down – they use Ethereum, a decentralized network of 1000s of computers as their backend", "symbol":"WEB3", "host":"","event_address":"123wsd.new1-wagmeet.testnet","location" : "Delhi", "total_tickets":10, "is_deleted":false } }' --accountId wagt1.testnet --gas=75000000000000
 
 
 
@@ -28,14 +28,14 @@ near call $CONTRACT all_hosts  --accountId $NEAR_ID
 near call $CONTRACT get_event_by_id '{"event_id" : "3hell.hey-wagmeet.testnet", "hostid" : "wag2.testnet"}'  --accountId $NEAR_ID
 near call $CONTRACT get_event_by_id '{"event_id" : "8good.hey-wagmeet.testnet", "hostid" : "krishna191.testnet"}'  --accountId $NEAR_ID
 
-near call 3-wagmmet.testnet all_events_by_id '{"hostid" : "wagt1.testnet"}'  --accountId wagt1.testnet
+near call new1-wagmeet.testnet all_events_by_id '{"hostid" : "wagt1.testnet"}'  --accountId wagt1.testnet
 near call 3-wagmmet.testnet all_events_by_id '{"hostid" : "krishna191.testnet"}'  --accountId krishna191.testnet
 
 
 
-# near call 3-wagmmet.testnet all_events  --accountId wag2.testnet
+# near call new1-wagmeet.testnet all_events  --accountId krishna191.testnet
 # near call latest-wagmeet.testnet all_events  --accountId wag2.testnet
-# near call 3-wagmmet.testnet delete_event '{"metadata" : { "name" : "MEHACK","description":"Web3 servers cant go down – they use Ethereum, a decentralized network of 1000s of computers as their backend", "symbol":"WEB3", "host":"krishna191.testnet","event_address":"mehac.3-wagmmet.testnet","location" : "Delhi", "total_tickets":10,  "is_deleted":false } }' --accountId shreyas123.testnet
+# near call new1-wagmeet.testnet delete_event '{"metadata" : { "name" : "Hello","description":"Web3 servers cant go down – they use Ethereum, a decentralized network of 1000s of computers as their backend", "symbol":"WEB3", "host":"wagt1.testnet","event_address":"123wsd.new1-wagmeet.testnet","location" : "Delhi", "total_tickets":10,  "is_deleted":false } }' --accountId wagt1.testnet
 
 
 # near call wagmeet-owner.$NEAR_ID delete_event_account '{"account":"fdslk.wagmeet.testnet"}' --accountId $NEAR_ID
