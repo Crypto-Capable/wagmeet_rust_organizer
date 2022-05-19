@@ -90,7 +90,6 @@ impl Contract {
         if !(self.host_list.contains(&signer_id)) {
             self.host_list.insert(&signer_id);
             let _set: UnorderedSet<Event> = UnorderedSet::new(b"w".to_vec());
-            self.event_list.insert(&signer_id, &_set);
         }
         let mut set_test = self.event_list.get(&signer_id).unwrap();
         set_test.insert(&event);

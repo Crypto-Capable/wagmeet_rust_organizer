@@ -28,12 +28,12 @@ near call $CONTRACT all_hosts  --accountId $NEAR_ID
 near call $CONTRACT get_event_by_id '{"event_id" : "3hell.hey-wagmeet.testnet", "hostid" : "wag2.testnet"}'  --accountId $NEAR_ID
 near call $CONTRACT get_event_by_id '{"event_id" : "8good.hey-wagmeet.testnet", "hostid" : "krishna191.testnet"}'  --accountId $NEAR_ID
 
-near call new1-wagmeet.testnet all_events_by_id '{"hostid" : "wagt1.testnet"}'  --accountId wagt1.testnet
+near call new1-wagmeet.testnet all_events_by_id '{"hostid" : "latest-events.testnet"}'  --accountId latest-events.testnet
 near call 3-wagmmet.testnet all_events_by_id '{"hostid" : "krishna191.testnet"}'  --accountId krishna191.testnet
 
 
 
-# near call new1-wagmeet.testnet all_events  --accountId krishna191.testnet
+# near call new1-wagmeet.testnet all_events  --accountId latest-events.testnet
 # near call latest-wagmeet.testnet all_events  --accountId wag2.testnet
 # near call new1-wagmeet.testnet delete_event '{"metadata" : { "name" : "Hello","description":"Web3 servers cant go down – they use Ethereum, a decentralized network of 1000s of computers as their backend", "symbol":"WEB3", "host":"wagt1.testnet","event_address":"123wsd.new1-wagmeet.testnet","location" : "Delhi", "total_tickets":10,  "is_deleted":false } }' --accountId wagt1.testnet
 
