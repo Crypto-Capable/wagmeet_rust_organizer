@@ -12,15 +12,13 @@ const CODE: &[u8] = include_bytes!(
 
 mod structs;
 mod test;
-mod traits;
 
 use crate::structs::Event;
 pub use structs::*;
-pub use traits::*;
 
 const NO_DEPOSIT: Balance = 0;
 pub const XCC_GAS: Gas = 20000000000000;
-const INITIAL_BALANCE: Balance = 4_500_000_000_000_000_000_000_000; 
+const INITIAL_BALANCE: Balance = 4_500_000_000_000_000_000_000_000;
 
 near_sdk::setup_alloc!();
 
@@ -81,19 +79,25 @@ impl Contract {
          *    deploy contract on created sub account, initialize contract.
          */
         // get contract account
-        let id = env::current_account_id();
         let signer_id = env::signer_account_id();
         let event = Event::create_event(env::signer_account_id(), &metadata);
-        let  event_definations: Event = serde_json::from_str(&metadata.to_string()).unwrap();
+        let event_definations: Event = serde_json::from_str(&metadata.to_string()).unwrap();
 
         // event.set_date(date);
         if !(self.host_list.contains(&signer_id)) {
             self.host_list.insert(&signer_id);
-            let _set: UnorderedSet<Event> = UnorderedSet::new(b"w".to_vec());
         }
-        let mut set_test = self.event_list.get(&signer_id).unwrap();
-        set_test.insert(&event);
-        self.event_list.insert(&signer_id, &set_test);
+
+        match self.event_list.get(&signer_id) {
+            Some(mut set_test) => {
+                set_test.insert(&event);
+                self.event_list.insert(&signer_id, &set_test);
+            }
+            None => {
+                let _set: UnorderedSet<Event> = UnorderedSet::new(b"w".to_vec());
+                self.event_list.insert(&signer_id, &_set);
+            }
+        }
 
         // create a sub account name using event name and contract ID.
         let event_account = event_definations.event_address.to_string();
