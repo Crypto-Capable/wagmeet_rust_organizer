@@ -73,12 +73,14 @@ impl Contract {
         #[allow(unused_doc_comments)]
         /**
          * STEPS :
-         * -> adds an event to 'event_list'
-         * -> adds host to 'host_list'
-         * -> creates a sub account for the event, transfer initial balance to cover storage costs,
+         * -> adds host to 'host_list' if host is not already there in the list
+         * -> get the 'event_list' for the host_id :
+         *      -> if 'event_list' is already created for the host, insert the event
+         *      -> if not, then create a empty 'event_list' for the host.
+         * -> create a sub account for the event, transfer initial balance to cover storage costs,
          *    deploy contract on created sub account, initialize contract.
          */
-        // get contract account
+        // get signer account
         let signer_id = env::signer_account_id();
         let event = Event::create_event(env::signer_account_id(), &metadata);
         let event_definations: Event = serde_json::from_str(&metadata.to_string()).unwrap();
@@ -170,17 +172,5 @@ impl Contract {
 
     pub fn all_hosts(&self) -> Vec<AccountId> {
         self.host_list.to_vec()
-    }
-
-    pub fn delete_event(&mut self, metadata: serde_json::Value) -> bool {
-        let hostid = env::signer_account_id();
-        let mut events = self.event_list.get(&hostid).unwrap();
-        let event: Event = Event::get_event(&metadata);
-        let is_owner = hostid == event.host;
-        assert!(events.contains(&event), "Event Not Found");
-        assert!(is_owner, "Only event owner can delete the event.");
-        events.remove(&event);
-        self.event_list.insert(&hostid, &events);
-        true
     }
 }
