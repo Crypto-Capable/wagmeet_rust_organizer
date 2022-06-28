@@ -11,12 +11,12 @@ impl Contract {
         let initial_storage_usage = env::storage_usage();
 
         // Check if minting is enabled on event or not. If not, throw error.
-        let is_mint_enabled : bool = self.is_mint_enabled;
-        log!("mint value :{}", is_mint_enabled);
-        assert!(
-            is_mint_enabled,
-            "Buying is not enabled on this event, Try after some time."
-        );
+        // let is_mint_enabled : bool = self.is_mint_enabled;
+        // log!("mint value :{}", is_mint_enabled);
+        // assert!(
+        //     is_mint_enabled,
+        //     "Buying is not enabled on this event, Try after some time."
+        // );
 
         let is_tickets_available : bool = self.total_tickets > self.token_metadata_by_id.len();
         assert!(is_tickets_available, "All tickets SOLD OUT.");

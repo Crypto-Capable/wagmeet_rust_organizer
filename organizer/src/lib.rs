@@ -12,7 +12,7 @@ use constants::{
 use near_sdk::json_types::{U128};
 
 const CODE: &[u8] = include_bytes!(
-    "../../nft_contract/contract/target/wasm32-unknown-unknown/release/nft_simple.wasm"
+    "../../nft_contract/out/main.wasm"
 );
 
 mod structs;
@@ -110,7 +110,6 @@ impl Contract {
         self.assert_sufficient_attached_deposit();
         self.assert_no_store_with_id(event_account.clone());
 
-        // log!("Store are : {:?}", self.event_list);
         #[allow(unused_doc_comments)]
 
         /**
@@ -137,6 +136,7 @@ impl Contract {
             Some(mut set_test) => {
                 set_test.insert(&event);
                 self.event_list.insert(&signer_id, &set_test);
+                log!("Events : {:?} INSERTED", &event);
             }
             None => {
                 let _set: UnorderedSet<Event> = UnorderedSet::new(b"w".to_vec());
