@@ -10,6 +10,7 @@ use constants::{
     storage_bytes
 };
 use near_sdk::json_types::{U128};
+use std::string::String;
 
 const CODE: &[u8] = include_bytes!(
     "../../nft_contract/out/main.wasm"

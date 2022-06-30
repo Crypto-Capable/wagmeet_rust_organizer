@@ -5,7 +5,7 @@ near delete hey-wagmeet.testnet $NEAR_ID
 
 
 near create-account wagmeet-owner.$NEAR_ID --masterAccount $NEAR_ID --initialBalance 50
-near deploy --wasmFile target/wasm32-unknown-unknown/release/organizer.wasm --accountId $CONTRACT --initFunction 'new' --initArgs '{}'
+  --initFunction 'new' --initArgs '{}'
 near deploy --wasmFile target/wasm32-unknown-unknown/release/organizer.wasm --accountId new1-wagmeet.testnet --initFunction 'new' --initArgs '{}'
 
 

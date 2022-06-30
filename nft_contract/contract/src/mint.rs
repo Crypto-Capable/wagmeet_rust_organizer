@@ -5,7 +5,7 @@ use std::convert::{TryFrom, TryInto};
 #[near_bindgen]
 impl Contract {
     #[payable]
-    pub fn nft_mint(&mut self, token_id: TokenId, metadata: TokenMetadata, receiver_id: AccountId) {
+    pub fn nft_mint(&mut self, metadata: TokenMetadata, receiver_id: AccountId) {
 
         //measure the initial storage being used on the contract
         let initial_storage_usage = env::storage_usage();
@@ -18,7 +18,7 @@ impl Contract {
         //     "Buying is not enabled on this event, Try after some time."
         // );
 
-        let is_tickets_available : bool = self.total_tickets > self.token_metadata_by_id.len();
+        let is_tickets_available : bool = self.total_tickets as usize > self.token_metadata_by_id.len() as usize;
         assert!(is_tickets_available, "All tickets SOLD OUT.");
 
         //specify the token struct that contains the owner ID
@@ -26,7 +26,10 @@ impl Contract {
             //set the owner ID equal to the receiver ID passed into the function
             owner_id: receiver_id,
         };
+         let total = self.token_metadata_by_id.len() + 1; // if no nfts minted len will be 0, so increment total supply by one.
+         let token_id : TokenId = total.to_string();
 
+         log!("total : {}, supply : {}, bool : {}, t_id : {}",self.total_tickets as usize, self.token_metadata_by_id.len() as usize, self.total_tickets as usize > self.token_metadata_by_id.len() as usize, token_id);
 
         //insert the token ID and token struct and make sure that the token doesn't exist
         assert!(
@@ -42,7 +45,6 @@ impl Contract {
          * Title is displayed on collectibles tab under each NFT. Title is the combination of text "Ticket" and the current supply.
          * This is subjected to change.
          */
-        let total = self.token_metadata_by_id.len() + 1; // if no nfts minted len will be 0, so increment total supply by one.
         let title: String = format!("{}-{:?}", "Ticket", total);
         let description: String = self.get_desc();
 
